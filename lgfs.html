@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>良工防水 - 住宅 · 商业 · 装修工程防水服务</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #1a1a1a;
+  --paper: #f5f0e8;
+  --gray: #888;
+  --light: #aaa;
+  --accent: #2f6ff7;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+  line-height: 1.8;
+}
+
+/* Ink decorations */
+.ink-decoration {
+  position: absolute;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.ink-circle {
+  width: 300px; height: 300px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+}
+
+.ink-circle.top-right { top: -50px; right: -50px; }
+.ink-circle.bottom-left { bottom: -80px; left: -80px; width: 400px; height: 400px; }
+
+.ink-line {
+  width: 200px; height: 1px;
+  background: var(--ink);
+  transform: rotate(-30deg);
+}
+
+.ink-line.mid-left { top: 40%; left: 5%; }
+
+/* Nav */
+nav {
+  position: fixed; top: 0; left: 0; width: 100%;
+  z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 48px;
+  background: rgba(245,240,232,0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(26,26,26,0.12);
+}
+
+.nav-logo {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  letter-spacing: 6px;
+}
+
+.nav-links { display: flex; gap: 32px; }
+
+.nav-links a {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 15px;
+  letter-spacing: 3px;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 0; height: 1px;
+  background: var(--ink);
+  transition: width 0.3s;
+}
+
+.nav-links a:hover::after { width: 100%; }
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 120px 24px 80px;
+}
+
+.hero-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 88px;
+  letter-spacing: 16px;
+  animation: titleFloat 3s ease-in-out infinite;
+}
+
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: var(--gray);
+  letter-spacing: 8px;
+  margin: 16px 0 48px;
+}
+
+.hero-desc {
+  max-width: 620px;
+  font-size: 16px;
+  color: #555;
+  letter-spacing: 2px;
+  margin-bottom: 56px;
+}
+
+.ink-btn {
+  display: inline-block;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 26px;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+  padding: 14px 52px;
+  letter-spacing: 8px;
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 0;
+}
+
+.ink-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: var(--ink);
+  transition: left 0.3s;
+  z-index: -1;
+}
+
+.ink-btn:hover { color: var(--paper); }
+.ink-btn:hover::before { left: 0; }
+
+/* Sections */
+section {
+  position: relative;
+  padding: 100px 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.section-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 44px;
+  letter-spacing: 12px;
+  text-align: center;
+}
+
+.section-sub {
+  text-align: center;
+  color: var(--light);
+  letter-spacing: 4px;
+  font-size: 14px;
+  margin: 12px 0 64px;
+}
+
+/* Services */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+}
+
+.service-card {
+  border: 1.5px solid var(--ink);
+  padding: 40px 32px;
+  background: transparent;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 6px 6px 0 rgba(26,26,26,0.12);
+}
+
+.service-card h3 {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  letter-spacing: 6px;
+  margin-bottom: 16px;
+}
+
+.service-card p {
+  font-size: 15px;
+  color: #555;
+  letter-spacing: 1px;
+}
+
+/* Process */
+.process-flow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0;
+}
+
+.process-step {
+  flex: 1;
+  min-width: 150px;
+  text-align: center;
+  padding: 24px 12px;
+  position: relative;
+}
+
+.process-step .step-num {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 20px;
+  color: var(--light);
+  letter-spacing: 2px;
+}
+
+.process-step .step-icon {
+  width: 72px; height: 72px;
+  margin: 16px auto;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 30px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.process-step:hover .step-icon {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.process-step h4 {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 22px;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+
+.process-step p {
+  font-size: 13px;
+  color: var(--gray);
+  letter-spacing: 1px;
+}
+
+.process-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -10px; top: 74px;
+  font-size: 22px;
+  color: var(--light);
+}
+
+.process-note {
+  margin-top: 48px;
+  text-align: center;
+  font-size: 15px;
+  color: #555;
+  letter-spacing: 2px;
+}
+
+.process-note strong {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 20px;
+  letter-spacing: 4px;
+}
+
+/* Why us */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+  text-align: center;
+}
+
+.why-item .why-mark {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.why-item h4 {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 22px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+
+.why-item p {
+  font-size: 14px;
+  color: var(--gray);
+  letter-spacing: 1px;
+}
+
+/* Contact */
+.contact-box {
+  border: 1.5px solid var(--ink);
+  padding: 56px 40px;
+  text-align: center;
+}
+
+.contact-box p {
+  font-size: 16px;
+  color: #555;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.contact-box .contact-phone {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 40px;
+  letter-spacing: 4px;
+  margin: 20px 0 32px;
+}
+
+/* Footer */
+footer {
+  border-top: 1px solid rgba(26,26,26,0.12);
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--light);
+  letter-spacing: 2px;
+}
+
+@media (max-width: 720px) {
+  .hero-title { font-size: 52px; letter-spacing: 10px; }
+  .nav-links { display: none; }
+  .process-step:not(:last-child)::after { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">良工防水</div>
+  <div class="nav-links">
+    <a href="#services">服务领域</a>
+    <a href="#process">服务流程</a>
+    <a href="#why">工艺承诺</a>
+    <a href="#contact">联系我们</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="ink-decoration ink-circle top-right"></div>
+  <div class="ink-decoration ink-circle bottom-left"></div>
+  <div class="ink-decoration ink-line mid-left"></div>
+  <h1 class="hero-title">良工防水</h1>
+  <div class="hero-subtitle">滴 水 不 漏 ， 良 工 匠 心</div>
+  <p class="hero-desc">
+    良工防水专注住宅、商业与装修工程防水服务，
+    提供勘察、方案、施工记录、质保与报修闭环管理，
+    以透明流程与匠心工艺，守护每一处干爽空间。
+  </p>
+  <a class="ink-btn" href="#contact">预 约 勘 察</a>
+</header>
+
+<section id="services">
+  <h2 class="section-title">服务领域</h2>
+  <div class="section-sub">SERVICES</div>
+  <div class="services-grid">
+    <div class="service-card">
+      <h3>住宅防水</h3>
+      <p>卫生间、厨房、阳台、屋面、外墙渗漏治理与翻新防水，免砸砖微创修缮，最小化对日常生活的影响。</p>
+    </div>
+    <div class="service-card">
+      <h3>商业工程</h3>
+      <p>商场、办公楼、厂房、地下车库等大型空间的系统防水方案，兼顾工期、成本与长期可靠性。</p>
+    </div>
+    <div class="service-card">
+      <h3>装修配套</h3>
+      <p>与装修工程同步的防水施工与验收，闭水试验全程留档，为后续装饰工序提供可靠基础。</p>
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="ink-decoration ink-line mid-left"></div>
+  <h2 class="section-title">服务流程</h2>
+  <div class="section-sub">CLOSED-LOOP PROCESS</div>
+  <div class="process-flow">
+    <div class="process-step">
+      <div class="step-num">壹</div>
+      <div class="step-icon">勘</div>
+      <h4>现场勘察</h4>
+      <p>渗漏溯源检测，出具勘察报告</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">贰</div>
+      <div class="step-icon">案</div>
+      <h4>方案设计</h4>
+      <p>按部位定制材料与工艺方案</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">叁</div>
+      <div class="step-icon">施</div>
+      <h4>施工记录</h4>
+      <p>关键工序影像留档，全程可追溯</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">肆</div>
+      <div class="step-icon">保</div>
+      <h4>质保签发</h4>
+      <p>验收合格后签发电子质保凭证</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">伍</div>
+      <div class="step-icon">修</div>
+      <h4>报修闭环</h4>
+      <p>质保期内报修响应，处置结果回访确认</p>
+    </div>
+  </div>
+  <p class="process-note">
+    从<strong>勘察</strong>到<strong>报修</strong>，每一单都有完整档案 —— 闭环管理，责任到人。
+  </p>
+</section>
+
+<section id="why">
+  <h2 class="section-title">工艺承诺</h2>
+  <div class="section-sub">OUR COMMITMENT</div>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-mark">真</div>
+      <h4>材料真实</h4>
+      <p>正品材料现场开封，批次可查</p>
+    </div>
+    <div class="why-item">
+      <div class="why-mark">细</div>
+      <h4>工序规范</h4>
+      <p>节点处理按标准工法执行</p>
+    </div>
+    <div class="why-item">
+      <div class="why-mark">明</div>
+      <h4>价格透明</h4>
+      <p>勘察后一次报价，无隐形增项</p>
+    </div>
+    <div class="why-item">
+      <div class="why-mark">诺</div>
+      <h4>质保兑现</h4>
+      <p>书面质保，报修限时响应</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <h2 class="section-title">联系我们</h2>
+  <div class="section-sub">CONTACT</div>
+  <div class="contact-box">
+    <div class="ink-decoration ink-circle top-right"></div>
+    <p>渗漏无小事，欢迎来电咨询或预约免费勘察</p>
+    <div class="contact-phone">400-000-0000</div>
+    <p>服务时间：周一至周日 8:00 - 20:00</p>
+    <a class="ink-btn" href="tel:4000000000">立 即 咨 询</a>
+  </div>
+</section>
+
+<footer>
+  良工防水 · 住宅 / 商业 / 装修工程防水 · 勘察 — 方案 — 施工 — 质保 — 报修 闭环服务
+</footer>
+
+</body>
+</html>
