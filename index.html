@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨线狂飙 - 线稿赛车</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  overflow: hidden;
+  background: #f5f0e8;
+  font-family: 'Noto Serif SC', serif;
+  cursor: none;
+  user-select: none;
+}
+
+canvas { display: block; }
+
+/* Custom cursor */
+.custom-cursor {
+  position: fixed;
+  width: 20px; height: 20px;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transition: transform 0.1s;
+  mix-blend-mode: difference;
+}
+
+/* HUD */
+#hud {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 100;
+}
+
+.hud-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 30px 40px;
+}
+
+.hud-score {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px; color: #1a1a1a;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+  opacity: 0; transition: opacity 0.5s;
+}
+
+.hud-score.visible { opacity: 1; }
+
+.hud-score .diamond-icon {
+  display: inline-block;
+  width: 20px; height: 20px;
+  background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  vertical-align: middle;
+  margin-right: 6px;
+  animation: diamondPulse 2s infinite;
+}
+
+@keyframes diamondPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.hud-health {
+  display: flex; gap: 6px; align-items: center;
+}
+
+.health-bar-container {
+  width: 160px; height: 8px;
+  background: rgba(26,26,26,0.15);
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid rgba(26,26,26,0.3);
+}
+
+.health-bar {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #ff4444, #ff8844, #44ff44);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.hud-time {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 22px; color: #1a1a1a;
+  opacity: 0.7;
+}
+
+.hud-center-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-family: 'Ma Shan Zheng', cursive;
+  pointer-events: none;
+  opacity: 0; transition: opacity 0.8s;
+}
+
+.hud-center-text.visible { opacity: 1; }
+
+.hud-center-text .scene-name {
+  font-size: 56px;
+  color: #1a1a1a;
+  letter-spacing: 12px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.hud-center-text .scene-poem {
+  font-size: 22px;
+  color: #555;
+  margin-top: 10px;
+  letter-spacing: 4px;
+}
+
+.hud-speed {
+  position: absolute; bottom: 30px; right: 40px;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 42px; color: #1a1a1a;
+  opacity: 0; transition: opacity 0.5s;
+}
+
+.hud-speed.visible { opacity: 0.6; }
+
+.hud-speed span { font-size: 16px; opacity: 0.5; }
+
+.hud-combo {
+  position: absolute; bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 36px; color: #7b2ff7;
+  opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  text-shadow: 0 0 20px rgba(123,47,247,0.3);
+}
+
+.hud-combo.visible {
+  opacity: 1;
+  animation: comboPopIn 0.3s ease-out;
+}
+
+@keyframes comboPopIn {
+  0% { transform: translateX(-50%) scale(1.5); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+/* Start screen */
+#start-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 200;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  background: #f5f0e8;
+  transition: opacity 1s;
+}
+
+#start-screen.hiding { opacity: 0; pointer-events: none; }
+
+.start-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 96px;
+  color: #1a1a1a;
+  letter-spacing: 16px;
+  margin-bottom: 10px;
+  animation: titleFloat 3s ease-in-out infinite;
+}
+
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.start-subtitle {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  color: #888;
+  letter-spacing: 8px;
+  margin-bottom: 60px;
+}
+
+.start-btn {
+  pointer-events: all;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 32px;
+  color: #1a1a1a;
+  background: transparent;
+  border: 2px solid #1a1a1a;
+  padding: 16px 60px;
+  cursor: none;
+  letter-spacing: 8px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: #1a1a1a;
+  transition: left 0.3s;
+  z-index: -1;
+}
+
+.start-btn:hover { color: #f5f0e8; }
+.start-btn:hover::before { left: 0; }
+
+.start-instructions {
+  margin-top: 40px;
+  font-size: 14px;
+  color: #aaa;
+  letter-spacing: 3px;
+  text-align: center;
+  line-height: 2;
+}
+
+.start-highscore {
+  margin-top: 20px;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 20px;
+  color: #7b2ff7;
+  letter-spacing: 4px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.start-highscore.visible { opacity: 1; }
+
+/* Ink decorations on start screen */
+.ink-decoration {
+  position: absolute;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.ink-circle {
+  width: 300px; height: 300px;
+  border: 3px solid #1a1a1a;
+  border-radius: 50%;
+}
+
+.ink-circle.top-right { top: -50px; right: -50px; }
+.ink-circle.bottom-left { bottom: -80px; left: -80px; width: 400px; height: 400px; }
+
+.ink-line {
+  width: 200px; height: 1px;
+  background: #1a1a1a;
+  transform: rotate(-30deg);
+}
+
+.ink-line.mid-left { top: 40%; left: 5%; }
+
+/* End screen */
+#end-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 200;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  background: rgba(245,240,232,0.95);
+  backdrop-filter: blur(10px);
+  opacity: 0; transition: opacity 0.8s;
+}
+
+#end-screen.visible { display: flex; opacity: 1; }
+
+.end-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 64px;
+  color: #1a1a1a;
+  letter-spacing: 12px;
+  margin-bottom: 30px;
+}
+
+.end-stats {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  margin-bottom: 40px;
+}
+
+.end-stat {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 24px;
+  color: #555;
+  letter-spacing: 4px;
+}
+
+.end-stat .value {
+  color: #1a1a1a;
+  font-size: 32px;
+}
+
+.end-stat .new-record {
+  color: #ff4444;
+  font-size: 18px;
+  margin-left: 8px;
+  animation: recordPulse 1s infinite;
+}
+
+@keyframes recordPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.end-encouragement {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  color: #7b2ff7;
+  letter-spacing: 6px;
+  margin-bottom: 40px;
+  opacity: 0.8;
+}
+
+.end-btn {
+  pointer-events: all;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  color: #1a1a1a;
+  background: transparent;
+  border: 2px solid #1a1a1a;
+  padding: 14px 50px;
+  cursor: none;
+  letter-spacing: 6px;
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+
+.end-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: #1a1a1a;
+  transition: left 0.3s;
+  z-index: -1;
+}
+
+.end-btn:hover { color: #f5f0e8; }
+.end-btn:hover::before { left: 0; }
+
+/* Scene transition overlay */
+#scene-transition {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 150;
+  background: #1a1a1a;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+#scene-transition.active { opacity: 1; }
+
+/* Damage flash */
+#damage-flash {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 90;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(255,0,0,0.3) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+#damage-flash.active { opacity: 1; }
+
+/* Heal flash */
+#heal-flash {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 90;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,255,100,0.2) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+#heal-flash.active { opacity: 1; }
+
+/* Loading */
+#loading {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 300;
+  background: #f5f0e8;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  transition: opacity 0.5s;
+}
+
+#loading.hidden { opacity: 0; pointer-events: none; }
+
+.loading-text {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  color: #1a1a1a;
+  letter-spacing: 8px;
+  animation: loadingPulse 1.5s infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Portal effect */
+.portal-notification {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 48px;
+  color: #7b2ff7;
+  letter-spacing: 8px;
+  z-index: 120;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 30px rgba(123,47,247,0.5);
+}
+
+.portal-notification.visible {
+  animation: portalTextAnim 2s forwards;
+}
+
+@keyframes portalTextAnim {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* Mobile controls hint */
+.mobile-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .start-title { font-size: 56px; letter-spacing: 8px; }
+  .start-subtitle { font-size: 14px; }
+  .hud-score { font-size: 22px; }
+  .hud-speed { font-size: 32px; }
+  .mobile-hint { display: block; }
+  .desktop-hint { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="custom-cursor" id="cursor"></div>
+
+<div id="loading">
+  <div class="loading-text">墨 线 狂 飙</div>
+</div>
+
+<div id="start-screen">
+  <div class="ink-decoration ink-circle top-right"></div>
+  <div class="ink-decoration ink-circle bottom-left"></div>
+  <div class="ink-decoration ink-line mid-left"></div>
+  <div class="start-title">墨线狂飙</div>
+  <div class="start-subtitle">一 笔 入 境 ， 线 动 乾 坤</div>
+  <button class="start-btn" id="start-btn" onclick="startGame()">开 始 疾 驰</button>
+  <div class="start-instructions">
+    <span class="desktop-hint">A / D 或 方向键 操控方向 &nbsp;|&nbsp; 空格键 加速</span>
+    <span class="mobile-hint">触屏左右滑动操控方向</span>
+  </div>
+  <div class="start-highscore" id="start-highscore"></div>
+</div>
+
+<div id="end-screen">
+  <div class="end-title">旅 途 暂 歇</div>
+  <div class="end-stats">
+    <div class="end-stat">钻石收集 <span class="value" id="end-score">0</span><span class="new-record" id="new-record" style="display:none">新纪录!</span></div>
+    <div class="end-stat">驰骋时长 <span class="value" id="end-time">0:00</span></div>
+    <div class="end-stat">最高纪录 <span class="value" id="end-best">0</span></div>
+  </div>
+  <div class="end-encouragement" id="end-encouragement">一笔之间，已见天地</div>
+  <button class="end-btn" onclick="restartGame()">再 次 出 发</button>
+</div>
+
+<div id="scene-transition"></div>
+<div id="damage-flash"></div>
+<div id="heal-flash"></div>
+
+<div id="hud">
+  <div class="hud-top">
+    <div>
+      <div class="hud-score" id="hud-score">
+        <span class="diamond-icon"></span>
+        <span id="score-value">0</span>
+      </div>
+      <div class="hud-time" id="hud-time" style="opacity:0">0:00</div>
+    </div>
+    <div class="hud-health" id="hud-health" style="opacity:0">
+      <div class="health-bar-container">
+        <div class="health-bar" id="health-bar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="hud-center-text" id="scene-text">
+    <div class="scene-name" id="scene-name"></div>
+    <div class="scene-poem" id="scene-poem"></div>
+  </div>
+  <div class="hud-speed" id="hud-speed">
+    <span id="speed-value">0</span><span> km/h</span>
+  </div>
+  <div class="hud-combo" id="hud-combo"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+//  墨线狂飙 - Wireframe Racing Game
+// ============================================================
+
+// --- Audio Engine (Web Audio API) ---
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.masterGain = null;
+    this.initialized = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = 0.3;
+    this.masterGain.connect(this.ctx.destination);
+    this.initialized = true;
+  }
+
+  // Synthesize a note
+  playTone(freq, duration, type = 'sine', volume = 0.3, detune = 0) {
+    if (!this.initialized) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  }
+
+  // Diamond collect sound - bright ascending sparkle
+  playCollect() {
+    this.playTone(880, 0.15, 'sine', 0.25);
+    setTimeout(() => this.playTone(1174, 0.12, 'sine', 0.2), 50);
+    setTimeout(() => this.playTone(1568, 0.2, 'sine', 0.15), 100);
+  }
+
+  // Combo sound
+  playCombo(level) {
+    const baseFreq = 440 + level * 80;
+    this.playTone(baseFreq, 0.1, 'sine', 0.2);
+    setTimeout(() => this.playTone(baseFreq * 1.5, 0.15, 'sine', 0.15), 60);
+    setTimeout(() => this.playTone(baseFreq * 2, 0.2, 'triangle', 0.1), 120);
+  }
+
+  // Damage sound - harsh buzz
+  playDamage() {
+    this.playTone(120, 0.3, 'sawtooth', 0.4);
+    this.playTone(80, 0.4, 'square', 0.2);
+  }
+
+  // Heal sound - gentle chime
+  playHeal() {
+    this.playTone(523, 0.2, 'sine', 0.2);
+    setTimeout(() => this.playTone(659, 0.2, 'sine', 0.15), 100);
+    setTimeout(() => this.playTone(784, 0.3, 'sine', 0.15), 200);
+  }
+
+  // Portal sound - whoosh
+  playPortal() {
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        this.playTone(200 + i * 150, 0.15, 'sine', 0.1 - i * 0.01);
+        this.playTone(200 + i * 150, 0.15, 'triangle', 0.05);
+      }, i * 40);
+    }
+  }
+
+  // Scene transition
+  playSceneChange() {
+    this.playTone(220, 0.5, 'sine', 0.15);
+    this.playTone(330, 0.5, 'sine', 0.1);
+    this.playTone(440, 0.8, 'triangle', 0.08);
+  }
+
+  // Engine hum (continuous)
+  startEngine() {
+    if (!this.initialized || this.engineOsc) return;
+    this.engineOsc = this.ctx.createOscillator();
+    this.engineGain = this.ctx.createGain();
+    this.engineOsc.type = 'sawtooth';
+    this.engineOsc.frequency.value = 55;
+    this.engineGain.gain.value = 0.04;
+    this.engineOsc.connect(this.engineGain);
+    this.engineGain.connect(this.masterGain);
+    this.engineOsc.start();
+  }
+
+  updateEngine(speed) {
+    if (!this.engineOsc) return;
+    this.engineOsc.frequency.value = 45 + speed * 0.5;
+    this.engineGain.gain.value = 0.02 + speed * 0.0003;
+  }
+
+  stopEngine() {
+    if (this.engineOsc) {
+      this.engineOsc.stop();
+      this.engineOsc = null;
+    }
+  }
+
+  // Game over sound
+  playGameOver() {
+    this.playTone(440, 0.3, 'sine', 0.3);
+    setTimeout(() => this.playTone(370, 0.3, 'sine', 0.25), 200);
+    setTimeout(() => this.playTone(330, 0.4, 'sine', 0.2), 400);
+    setTimeout(() => this.playTone(262, 0.8, 'sine', 0.15), 600);
+  }
+
+  // Start sound
+  playStart() {
+    this.playTone(262, 0.15, 'sine', 0.2);
+    setTimeout(() => this.playTone(330, 0.15, 'sine', 0.2), 150);
+    setTimeout(() => this.playTone(392, 0.15, 'sine', 0.2), 300);
+    setTimeout(() => this.playTone(523, 0.3, 'sine', 0.25), 450);
+  }
+
+  // Ambient drone for atmosphere
+  startAmbient() {
+    if (!this.initialized || this.ambientOsc) return;
+    this.ambientOsc = this.ctx.createOscillator();
+    this.ambientGain = this.ctx.createGain();
+    this.ambientOsc.type = 'sine';
+    this.ambientOsc.frequency.value = 110;
+    this.ambientGain.gain.value = 0.02;
+    
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.value = 0.2;
+    lfoGain.gain.value = 10;
+    lfo.connect(lfoGain);
+    lfoGain.connect(this.ambientOsc.frequency);
+    lfo.start();
+    
+    this.ambientOsc.connect(this.ambientGain);
+    this.ambientGain.connect(this.masterGain);
+    this.ambientOsc.start();
+    this.ambientLfo = lfo;
+  }
+
+  stopAmbient() {
+    if (this.ambientOsc) {
+      this.ambientOsc.stop();
+      this.ambientLfo.stop();
+      this.ambientOsc = null;
+      this.ambientLfo = null;
+    }
+  }
+}
+
+const audio = new AudioEngine();
+
+// --- Scene definitions ---
+const SCENES = [
+  {
+    name: '墨山',
+    poem: '远山如黛，近水含烟',
+    bg: [0.96, 0.94, 0.91],
+    wireColor: 0x1a1a1a,
+    groundColor: 0xf5f0e8,
+    fogColor: 0xf5f0e8,
+    fogNear: 30, fogFar: 120,
+    colorMode: 'wireframe', // wireframe, monochrome, colorful
+    tintColor: null,
+    objects: 'mountains',
+  },
+  {
+    name: '竹海',
+    poem: '疏影横斜，暗香浮动',
+    bg: [0.92, 0.96, 0.90],
+    wireColor: 0x2d5a27,
+    groundColor: 0xeaf5e4,
+    fogColor: 0xeaf5e4,
+    fogNear: 25, fogFar: 100,
+    colorMode: 'monochrome',
+    tintColor: 0x2d5a27,
+    objects: 'bamboo',
+  },
+  {
+    name: '赤霞',
+    poem: '落霞与孤鹜齐飞',
+    bg: [0.98, 0.90, 0.85],
+    wireColor: 0xcc3333,
+    groundColor: 0xffe8dd,
+    fogColor: 0xffe8dd,
+    fogNear: 35, fogFar: 130,
+    colorMode: 'colorful',
+    tintColor: null,
+    objects: 'arches',
+  },
+  {
+    name: '幽蓝',
+    poem: '星垂平野阔，月涌大江流',
+    bg: [0.08, 0.10, 0.18],
+    wireColor: 0x4488ff,
+    groundColor: 0x141828,
+    fogColor: 0x141828,
+    fogNear: 20, fogFar: 90,
+    colorMode: 'monochrome',
+    tintColor: 0x4488ff,
+    objects: 'crystals',
+  },
+  {
+    name: '金秋',
+    poem: '霜叶红于二月花',
+    bg: [0.98, 0.95, 0.86],
+    wireColor: 0xcc8800,
+    groundColor: 0xfaf0d8,
+    fogColor: 0xfaf0d8,
+    fogNear: 30, fogFar: 110,
+    colorMode: 'colorful',
+    tintColor: null,
+    objects: 'trees',
+  },
+  {
+    name: '虚境',
+    poem: '大道至简，返璞归真',
+    bg: [1.0, 1.0, 1.0],
+    wireColor: 0x000000,
+    groundColor: 0xffffff,
+    fogColor: 0xffffff,
+    fogNear: 40, fogFar: 150,
+    colorMode: 'wireframe',
+    tintColor: null,
+    objects: 'geometric',
+  },
+];
+
+// --- Encouragement messages ---
+const ENCOURAGEMENTS = [
+  { min: 0, msg: '初出茅庐，来日方长' },
+  { min: 10, msg: '小试牛刀，渐入佳境' },
+  { min: 30, msg: '驰骋如风，势不可挡' },
+  { min: 60, msg: '墨线之间，已见功力' },
+  { min: 100, msg: '线动乾坤，出神入化' },
+  { min: 200, msg: '一笔千里，天下无双' },
+  { min: 500, msg: '超凡入圣，笔走龙蛇' },
+];
+
+// --- Game State ---
+const state = {
+  running: false,
+  score: 0,
+  health: 100,
+  maxHealth: 100,
+  speed: 0,
+  targetSpeed: 80,
+  baseSpeed: 80,
+  maxSpeed: 160,
+  boostSpeed: 140,
+  steerAngle: 0,
+  steerTarget: 0,
+  carX: 0,
+  carTilt: 0,
+  distance: 0,
+  gameTime: 0,
+  combo: 0,
+  comboTimer: 0,
+  highScore: 0,
+  currentScene: 0,
+  sceneDistance: 0,
+  nextSceneAt: 300,
+  portalActive: false,
+  is2D: false,
+  colorTransition: 0, // 0 = wireframe, 1 = full color
+  segments: [],
+  diamonds: [],
+  obstacles: [],
+  healthPacks: [],
+  portals: [],
+  particles: [],
+  lastSteerInput: 0,
+  touchStartX: 0,
+  boosting: false,
+  invincibleTimer: 0,
+  shakeAmount: 0,
+  trackCurve: 0,
+  trackCurveTarget: 0,
+  trackCurveTimer: 0,
+};
+
+// --- Three.js Setup ---
+let scene, camera, renderer;
+let carGroup, carBody;
+let trackGroup, envGroup;
+let portalMesh;
+
+function initThree() {
+  scene = new THREE.Scene();
+  
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(0, 3.5, -6);
+  camera.lookAt(0, 1, 10);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0xf5f0e8);
+  document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+  // Fog
+  scene.fog = new THREE.Fog(0xf5f0e8, 30, 120);
+
+  // Ambient light
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+  dirLight.position.set(5, 10, 5);
+  scene.add(dirLight);
+
+  // Groups
+  trackGroup = new THREE.Group();
+  scene.add(trackGroup);
+
+  envGroup = new THREE.Group();
+  scene.add(envGroup);
+
+  // Create car
+  createCar();
+
+  // Ground plane
+  const groundGeo = new THREE.PlaneGeometry(200, 400);
+  const groundMat = new THREE.MeshBasicMaterial({ color: 0xf5f0e8, side: THREE.DoubleSide });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.05;
+  ground.name = 'ground';
+  scene.add(ground);
+
+  window.addEventListener('resize', onResize);
+}
+
+function createCar() {
+  carGroup = new THREE.Group();
+  
+  // Car body - stylish wireframe
+  const bodyGeo = new THREE.BoxGeometry(1.4, 0.5, 2.8);
+  const bodyEdges = new THREE.EdgesGeometry(bodyGeo);
+  const bodyLine = new THREE.LineSegments(bodyEdges, new THREE.LineBasicMaterial({ color: 0x1a1a1a, linewidth: 2 }));
+  bodyLine.position.y = 0.4;
+  carGroup.add(bodyLine);
+  carBody = bodyLine;
+
+  // Cabin
+  const cabinGeo = new THREE.BoxGeometry(1.1, 0.45, 1.4);
+  const cabinEdges = new THREE.EdgesGeometry(cabinGeo);
+  const cabinLine = new THREE.LineSegments(cabinEdges, new THREE.LineBasicMaterial({ color: 0x1a1a1a, linewidth: 2 }));
+  cabinLine.position.set(0, 0.72, -0.2);
+  carGroup.add(cabinLine);
+
+  // Wheels
+  const wheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.15, 8);
+  const wheelEdges = new THREE.EdgesGeometry(wheelGeo);
+  const wheelPositions = [
+    [-0.75, 0.15, 0.8],
+    [0.75, 0.15, 0.8],
+    [-0.75, 0.15, -0.8],
+    [0.75, 0.15, -0.8],
+  ];
+  wheelPositions.forEach(pos => {
+    const wheel = new THREE.LineSegments(wheelEdges, new THREE.LineBasicMaterial({ color: 0x1a1a1a }));
+    wheel.position.set(...pos);
+    wheel.rotation.z = Math.PI / 2;
+    carGroup.add(wheel);
+  });
+
+  // Spoiler
+  const spoilerGeo = new THREE.BoxGeometry(1.2, 0.05, 0.3);
+  const spoilerEdges = new THREE.EdgesGeometry(spoilerGeo);
+  const spoiler = new THREE.LineSegments(spoilerEdges, new THREE.LineBasicMaterial({ color: 0x1a1a1a }));
+  spoiler.position.set(0, 0.85, -1.2);
+  carGroup.add(spoiler);
+
+  // Support for spoiler
+  const supportGeo = new THREE.BoxGeometry(0.05, 0.2, 0.05);
+  const supportEdges = new THREE.EdgesGeometry(supportGeo);
+  [-0.45, 0.45].forEach(x => {
+    const support = new THREE.LineSegments(supportEdges, new THREE.LineBasicMaterial({ color: 0x1a1a1a }));
+    support.position.set(x, 0.75, -1.2);
+    carGroup.add(support);
+  });
+
+  carGroup.position.set(0, 0, 0);
+  scene.add(carGroup);
+}
+
+// --- Track Generation ---
+const TRACK_WIDTH = 5;
+const SEGMENT_LENGTH = 4;
+const VISIBLE_SEGMENTS = 40;
+const WALL_HEIGHT = 2;
+
+function createTrackSegment(z, index) {
+  const scn = SCENES[state.currentScene];
+  const group = new THREE.Group();
+  group.position.z = z;
+
+  const mat = new THREE.LineBasicMaterial({ color: scn.wireColor, transparent: true, opacity: 0.5 });
+  const matBright = new THREE.LineBasicMaterial({ color: scn.wireColor, transparent: true, opacity: 0.8 });
+
+  // Road edges
+  const leftLine = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-TRACK_WIDTH / 2, 0, 0),
+    new THREE.Vector3(-TRACK_WIDTH / 2, 0, SEGMENT_LENGTH),
+  ]);
+  group.add(new THREE.Line(leftLine, matBright));
+
+  const rightLine = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(TRACK_WIDTH / 2, 0, 0),
+    new THREE.Vector3(TRACK_WIDTH / 2, 0, SEGMENT_LENGTH),
+  ]);
+  group.add(new THREE.Line(rightLine, matBright));
+
+  // Cross hatching every few segments
+  if (index % 3 === 0) {
+    const crossLine = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-TRACK_WIDTH / 2, 0, 0),
+      new THREE.Vector3(TRACK_WIDTH / 2, 0, 0),
+    ]);
+    group.add(new THREE.Line(crossLine, mat));
+  }
+
+  // Center dashed line
+  if (index % 2 === 0) {
+    const centerLine = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0.01, 0.5),
+      new THREE.Vector3(0, 0.01, SEGMENT_LENGTH - 0.5),
+    ]);
+    group.add(new THREE.Line(centerLine, mat));
+  }
+
+  // Occasional side walls
+  if (Math.random() < 0.15) {
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const wallGeo = new THREE.BoxGeometry(0.1, WALL_HEIGHT, SEGMENT_LENGTH);
+    const wallEdges = new THREE.EdgesGeometry(wallGeo);
+    const wall = new THREE.LineSegments(wallEdges, mat);
+    wall.position.set(side * TRACK_WIDTH / 2, WALL_HEIGHT / 2, SEGMENT_LENGTH / 2);
+    group.add(wall);
+  }
+
+  trackGroup.add(group);
+  return { group, z, index };
+}
+
+// --- Environment Objects ---
+function createEnvObject(z, side) {
+  const scn = SCENES[state.currentScene];
+  const mat = new THREE.LineBasicMaterial({ color: scn.wireColor, transparent: true, opacity: 0.4 });
+  const matSolid = scn.colorMode === 'colorful'
+    ? new THREE.MeshBasicMaterial({ color: scn.wireColor, transparent: true, opacity: 0.15, wireframe: true })
+    : null;
+
+  const group = new THREE.Group();
+  const x = side * (TRACK_WIDTH / 2 + 3 + Math.random() * 12);
+
+  switch (scn.objects) {
+    case 'mountains': {
+      const h = 4 + Math.random() * 12;
+      const geo = new THREE.ConeGeometry(2 + Math.random() * 3, h, 4 + Math.floor(Math.random() * 3));
+      const edges = new THREE.EdgesGeometry(geo);
+      const obj = new THREE.LineSegments(edges, mat);
+      obj.position.set(x, h / 2, z);
+      group.add(obj);
+      break;
+    }
+    case 'bamboo': {
+      const h = 6 + Math.random() * 8;
+      const geo = new THREE.CylinderGeometry(0.08, 0.1, h, 6);
+      const edges = new THREE.EdgesGeometry(geo);
+      const obj = new THREE.LineSegments(edges, mat);
+      obj.position.set(x, h / 2, z);
+      group.add(obj);
+      // Leaves
+      for (let i = 0; i < 3; i++) {
+        const leafGeo = new THREE.PlaneGeometry(1.5, 0.3);
+        const leafEdges = new THREE.EdgesGeometry(leafGeo);
+        const leaf = new THREE.LineSegments(leafEdges, mat);
+        leaf.position.set(x + 0.5, h * 0.6 + i * 0.8, z);
+        leaf.rotation.z = -0.3 + Math.random() * 0.6;
+        group.add(leaf);
+      }
+      break;
+    }
+    case 'arches': {
+      if (Math.random() < 0.5) {
+        const geo = new THREE.TorusGeometry(3 + Math.random() * 2, 0.15, 4, 12, Math.PI);
+        const edges = new THREE.EdgesGeometry(geo);
+        const obj = new THREE.LineSegments(edges, mat);
+        obj.position.set(x, 0, z);
+        obj.rotation.z = Math.PI;
+        group.add(obj);
+      } else {
+        const h = 3 + Math.random() * 5;
+        const geo = new THREE.BoxGeometry(1, h, 1);
+        const edges = new THREE.EdgesGeometry(geo);
+        const obj = new THREE.LineSegments(edges, mat);
+        obj.position.set(x, h / 2, z);
+        group.add(obj);
+      }
+      break;
+    }
+    case 'crystals': {
+      const h = 2 + Math.random() * 6;
+      const geo = new THREE.OctahedronGeometry(h / 2, 0);
+      const edges = new THREE.EdgesGeometry(geo);
+      const obj = new THREE.LineSegments(edges, mat);
+      obj.position.set(x, h / 2, z);
+      obj.rotation.y = Math.random() * Math.PI;
+      group.add(obj);
+      if (matSolid) {
+        const solidObj = new THREE.Mesh(geo, matSolid);
+        solidObj.position.copy(obj.position);
+        solidObj.rotation.copy(obj.rotation);
+        group.add(solidObj);
+      }
+      break;
+    }
+    case 'trees': {
+      const h = 3 + Math.random() * 4;
+      // Trunk
+      const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, h * 0.4, 5);
+      const trunkEdges = new THREE.EdgesGeometry(trunkGeo);
+      const trunk = new THREE.LineSegments(trunkEdges, mat);
+      trunk.position.set(x, h * 0.2, z);
+      group.add(trunk);
+      // Foliage
+      const foliageGeo = new THREE.IcosahedronGeometry(h * 0.35, 1);
+      const foliageEdges = new THREE.EdgesGeometry(foliageGeo);
+      const colorMat = scn.colorMode === 'colorful'
+        ? new THREE.LineBasicMaterial({ color: 0xcc4400, transparent: true, opacity: 0.5 })
+        : mat;
+      const foliage = new THREE.LineSegments(foliageEdges, colorMat);
+      foliage.position.set(x, h * 0.55, z);
+      group.add(foliage);
+      break;
+    }
+    case 'geometric': {
+      const shapes = [
+        () => new THREE.TetrahedronGeometry(2 + Math.random() * 2),
+        () => new THREE.IcosahedronGeometry(1.5 + Math.random() * 2, 0),
+        () => new THREE.DodecahedronGeometry(1.5 + Math.random() * 2, 0),
+        () => new THREE.TorusKnotGeometry(1.5, 0.3, 30, 6),
+      ];
+      const geo = shapes[Math.floor(Math.random() * shapes.length)]();
+      const edges = new THREE.EdgesGeometry(geo);
+      const obj = new THREE.LineSegments(edges, mat);
+      const h = 2 + Math.random() * 4;
+      obj.position.set(x, h, z);
+      obj.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+      group.add(obj);
+      break;
+    }
+  }
+
+  envGroup.add(group);
+  return { group, z };
+}
+
+// --- Collectibles & Obstacles ---
+function createDiamond(z, x) {
+  const scn = SCENES[state.currentScene];
+  const group = new THREE.Group();
+  
+  // Diamond shape - octahedron
+  const geo = new THREE.OctahedronGeometry(0.3, 0);
+  const edges = new THREE.EdgesGeometry(geo);
+  
+  // Color based on scene
+  let color;
+  if (scn.colorMode === 'colorful') {
+    color = new THREE.Color().setHSL(Math.random(), 0.8, 0.5);
+  } else if (scn.colorMode === 'monochrome') {
+    color = new THREE.Color(scn.wireColor);
+  } else {
+    color = new THREE.Color(0x7b2ff7);
+  }
+  
+  const lineMat = new THREE.LineBasicMaterial({ color, linewidth: 2 });
+  const diamond = new THREE.LineSegments(edges, lineMat);
+  diamond.position.set(x, 1.0, z);
+  group.add(diamond);
+
+  // Inner glow
+  const innerGeo = new THREE.OctahedronGeometry(0.15, 0);
+  const innerMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3 });
+  const inner = new THREE.Mesh(innerGeo, innerMat);
+  inner.position.copy(diamond.position);
+  group.add(inner);
+
+  scene.add(group);
+  return { group, z, x, collected: false };
+}
+
+function createObstacle(z, x) {
+  const scn = SCENES[state.currentScene];
+  const group = new THREE.Group();
+  
+  const type = Math.floor(Math.random() * 3);
+  let geo;
+  
+  switch (type) {
+    case 0: // Barrier
+      geo = new THREE.BoxGeometry(1.5, 1.2, 0.4);
+      break;
+    case 1: // Spike
+      geo = new THREE.ConeGeometry(0.5, 1.5, 4);
+      break;
+    case 2: // Rock
+      geo = new THREE.DodecahedronGeometry(0.6, 0);
+      break;
+  }
+  
+  const edges = new THREE.EdgesGeometry(geo);
+  const mat = new THREE.LineBasicMaterial({ color: 0xff3333, linewidth: 2 });
+  const obj = new THREE.LineSegments(edges, mat);
+  obj.position.set(x, type === 1 ? 0.75 : 0.6, z);
+  group.add(obj);
+
+  // Warning fill
+  const fillMat = new THREE.MeshBasicMaterial({ color: 0xff3333, transparent: true, opacity: 0.08, wireframe: true });
+  const fill = new THREE.Mesh(geo, fillMat);
+  fill.position.copy(obj.position);
+  group.add(fill);
+
+  scene.add(group);
+  return { group, z, x, hit: false, radius: type === 0 ? 0.8 : 0.5 };
+}
+
+function createHealthPack(z, x) {
+  const group = new THREE.Group();
+  
+  // Cross shape
+  const crossVert = new THREE.BoxGeometry(0.15, 0.5, 0.15);
+  const crossHoriz = new THREE.BoxGeometry(0.5, 0.15, 0.15);
+  
+  const mat = new THREE.LineBasicMaterial({ color: 0x44ff44, linewidth: 2 });
+  
+  const vert = new THREE.LineSegments(new THREE.EdgesGeometry(crossVert), mat);
+  vert.position.set(x, 1.0, z);
+  group.add(vert);
+  
+  const horiz = new THREE.LineSegments(new THREE.EdgesGeometry(crossHoriz), mat);
+  horiz.position.set(x, 1.0, z);
+  group.add(horiz);
+
+  // Outer ring
+  const ringGeo = new THREE.TorusGeometry(0.4, 0.03, 6, 12);
+  const ring = new THREE.LineSegments(new THREE.EdgesGeometry(ringGeo), mat);
+  ring.position.set(x, 1.0, z);
+  ring.rotation.x = Math.PI / 2;
+  group.add(ring);
+
+  scene.add(group);
+  return { group, z, x, collected: false };
+}
+
+function createPortal(z) {
+  const group = new THREE.Group();
+  
+  // Portal ring
+  const ringGeo = new THREE.TorusGeometry(2.5, 0.1, 8, 24);
+  const mat = new THREE.LineBasicMaterial({ color: 0x7b2ff7, linewidth: 2 });
+  const ring = new THREE.LineSegments(new THREE.EdgesGeometry(ringGeo), mat);
+  ring.position.set(0, 2.5, z);
+  group.add(ring);
+
+  // Inner rings
+  for (let i = 1; i <= 3; i++) {
+    const innerGeo = new THREE.TorusGeometry(2.5 - i * 0.5, 0.05, 6, 16);
+    const innerMat = new THREE.LineBasicMaterial({ color: 0x7b2ff7, transparent: true, opacity: 0.6 - i * 0.15 });
+    const inner = new THREE.LineSegments(new THREE.EdgesGeometry(innerGeo), innerMat);
+    inner.position.set(0, 2.5, z);
+    inner.rotation.z = i * 0.3;
+    group.add(inner);
+  }
+
+  // Particle effects around portal
+  const particleGeo = new THREE.BufferGeometry();
+  const pCount = 50;
+  const pPositions = new Float32Array(pCount * 3);
+  for (let i = 0; i < pCount; i++) {
+    const angle = (i / pCount) * Math.PI * 2;
+    const r = 2 + Math.random() * 1;
+    pPositions[i * 3] = Math.cos(angle) * r;
+    pPositions[i * 3 + 1] = 2.5 + Math.sin(angle) * r;
+    pPositions[i * 3 + 2] = z + (Math.random() - 0.5) * 2;
+  }
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+  const particleMat = new THREE.PointsMaterial({ color: 0x7b2ff7, size: 0.08, transparent: true, opacity: 0.6 });
+  const particles = new THREE.Points(particleGeo, particleMat);
+  group.add(particles);
+
+  scene.add(group);
+  return { group, z, entered: false };
+}
+
+// --- Particles ---
+function spawnParticles(x, y, z, color, count = 8) {
+  for (let i = 0; i < count; i++) {
+    const geo = new THREE.SphereGeometry(0.05, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.8 });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.set(x, y, z);
+    scene.add(p);
+    state.particles.push({
+      mesh: p,
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 3 + 1,
+      vz: (Math.random() - 0.5) * 4,
+      life: 1,
+      decay: 0.02 + Math.random() * 0.02,
+    });
+  }
+}
+
+// --- Track Management ---
+let nextSegmentZ = 0;
+let nextEnvZ = 0;
+let envObjects = [];
+let segmentIndex = 0;
+
+function initTrack() {
+  // Clear
+  while (trackGroup.children.length) trackGroup.remove(trackGroup.children[0]);
+  while (envGroup.children.length) envGroup.remove(envGroup.children[0]);
+  state.segments = [];
+  state.diamonds = [];
+  state.obstacles = [];
+  state.healthPacks = [];
+  state.portals = [];
+  envObjects = [];
+  segmentIndex = 0;
+  nextSegmentZ = -10;
+  nextEnvZ = 10;
+
+  // Initial segments
+  for (let i = 0; i < VISIBLE_SEGMENTS; i++) {
+    state.segments.push(createTrackSegment(nextSegmentZ, segmentIndex));
+    segmentIndex++;
+    nextSegmentZ += SEGMENT_LENGTH;
+  }
+
+  // Initial env
+  for (let i = 0; i < 20; i++) {
+    envObjects.push(createEnvObject(nextEnvZ, Math.random() < 0.5 ? -1 : 1));
+    nextEnvZ += 5 + Math.random() * 10;
+  }
+
+  // Spawn initial diamonds
+  for (let z = 20; z < nextSegmentZ; z += 6 + Math.random() * 8) {
+    const laneX = (Math.random() - 0.5) * (TRACK_WIDTH - 1);
+    state.diamonds.push(createDiamond(z, laneX));
+  }
+
+  // Spawn initial obstacles
+  for (let z = 40; z < nextSegmentZ; z += 15 + Math.random() * 20) {
+    const laneX = (Math.random() - 0.5) * (TRACK_WIDTH - 1.5);
+    state.obstacles.push(createObstacle(z, laneX));
+  }
+}
+
+function updateTrack() {
+  const carZ = state.distance;
+
+  // Remove old segments and add new ones
+  while (state.segments.length > 0 && state.segments[0].z < carZ - 20) {
+    const old = state.segments.shift();
+    trackGroup.remove(old.group);
+  }
+
+  while (state.segments.length < VISIBLE_SEGMENTS) {
+    state.segments.push(createTrackSegment(nextSegmentZ, segmentIndex));
+    segmentIndex++;
+    nextSegmentZ += SEGMENT_LENGTH;
+
+    // Spawn diamonds
+    if (Math.random() < 0.5) {
+      const laneX = (Math.random() - 0.5) * (TRACK_WIDTH - 1);
+      state.diamonds.push(createDiamond(nextSegmentZ, laneX));
+    }
+
+    // Spawn obstacles
+    if (Math.random() < 0.2 && segmentIndex > 5) {
+      const laneX = (Math.random() - 0.5) * (TRACK_WIDTH - 1.5);
+      state.obstacles.push(createObstacle(nextSegmentZ, laneX));
+    }
+
+    // Spawn health packs
+    if (Math.random() < 0.1) {
+      const laneX = (Math.random() - 0.5) * (TRACK_WIDTH - 1);
+      state.healthPacks.push(createHealthPack(nextSegmentZ, laneX));
+    }
+
+    // Spawn portals
+    if (state.sceneDistance > state.nextSceneAt - 20 && !state.portalActive && Math.random() < 0.3) {
+      state.portals.push(createPortal(nextSegmentZ));
+      state.portalActive = true;
+    }
+  }
+
+  // Remove old env
+  while (envObjects.length > 0 && envObjects[0].z < carZ - 30) {
+    const old = envObjects.shift();
+    envGroup.remove(old.group);
+  }
+
+  while (envObjects.length < 25) {
+    envObjects.push(createEnvObject(nextEnvZ, Math.random() < 0.5 ? -1 : 1));
+    nextEnvZ += 5 + Math.random() * 10;
+  }
+
+  // Clean up collected/old diamonds
+  state.diamonds = state.diamonds.filter(d => {
+    if (d.z < carZ - 10 || d.collected) {
+      scene.remove(d.group);
+      return false;
+    }
+    return true;
+  });
+
+  // Clean up obstacles
+  state.obstacles = state.obstacles.filter(o => {
+    if (o.z < carZ - 10) {
+      scene.remove(o.group);
+      return false;
+    }
+    return true;
+  });
+
+  // Clean up health packs
+  state.healthPacks = state.healthPacks.filter(h => {
+    if (h.z < carZ - 10 || h.collected) {
+      scene.remove(h.group);
+      return false;
+    }
+    return true;
+  });
+
+  // Clean up portals
+  state.portals = state.portals.filter(p => {
+    if (p.z < carZ - 10 || p.entered) {
+      scene.remove(p.group);
+      return false;
+    }
+    return true;
+  });
+}
+
+// --- Scene Transitions ---
+function applyScene(index) {
+  const scn = SCENES[index];
+  state.currentScene = index;
+
+  // Update fog
+  scene.fog.color.set(scn.fogColor);
+  scene.fog.near = scn.fogNear;
+  scene.fog.far = scn.fogFar;
+
+  // Update background
+  renderer.setClearColor(new THREE.Color(scn.bg[0], scn.bg[1], scn.bg[2]));
+
+  // Update ground
+  const ground = scene.getObjectByName('ground');
+  if (ground) ground.material.color.set(scn.groundColor);
+
+  // Update car color
+  carGroup.traverse(child => {
+    if (child.material && child.material.color) {
+      child.material.color.set(scn.wireColor);
+    }
+  });
+
+  // Show scene text
+  showSceneText(scn.name, scn.poem);
+}
+
+function transitionToScene(index) {
+  const overlay = document.getElementById('scene-transition');
+  overlay.classList.add('active');
+  audio.playSceneChange();
+
+  setTimeout(() => {
+    // Clear existing objects
+    state.portalActive = false;
+    applyScene(index);
+    state.sceneDistance = 0;
+    state.nextSceneAt = 200 + Math.random() * 200;
+    
+    // Regenerate track elements with new scene style
+    setTimeout(() => {
+      overlay.classList.remove('active');
+    }, 400);
+  }, 600);
+}
+
+function showSceneText(name, poem) {
+  const el = document.getElementById('scene-text');
+  document.getElementById('scene-name').textContent = name;
+  document.getElementById('scene-poem').textContent = poem;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 3000);
+}
+
+// --- Input ---
+const keys = {};
+
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space') e.preventDefault();
+});
+
+document.addEventListener('keyup', e => {
+  keys[e.code] = false;
+});
+
+// Touch input
+let touchX = null;
+document.addEventListener('touchstart', e => {
+  touchX = e.touches[0].clientX;
+  state.touchStartX = touchX;
+});
+
+document.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (touchX !== null) {
+    const dx = e.touches[0].clientX - touchX;
+    state.steerTarget = Math.max(-1, Math.min(1, dx / 60));
+    touchX = e.touches[0].clientX;
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+  touchX = null;
+  state.steerTarget = 0;
+});
+
+// Custom cursor
+document.addEventListener('mousemove', e => {
+  const cursor = document.getElementById('cursor');
+  cursor.style.left = (e.clientX - 10) + 'px';
+  cursor.style.top = (e.clientY - 10) + 'px';
+});
+
+// --- Collision ---
+function checkCollisions() {
+  const carZ = state.distance;
+  const carX = state.carX;
+
+  // Diamonds
+  state.diamonds.forEach(d => {
+    if (d.collected) return;
+    const dz = Math.abs(d.z - carZ);
+    const dx = Math.abs(d.x - carX);
+    if (dz < 1.5 && dx < 1.0) {
+      d.collected = true;
+      state.score += (1 + Math.floor(state.combo / 3));
+      state.combo++;
+      state.comboTimer = 2;
+      audio.playCollect();
+      if (state.combo > 1 && state.combo % 3 === 0) {
+        audio.playCombo(state.combo);
+      }
+      spawnParticles(d.x, 1, d.z, 0x7b2ff7, 6);
+      updateHUD();
+    }
+  });
+
+  // Obstacles
+  if (state.invincibleTimer <= 0) {
+    state.obstacles.forEach(o => {
+      if (o.hit) return;
+      const dz = Math.abs(o.z - carZ);
+      const dx = Math.abs(o.x - carX);
+      if (dz < 1.2 && dx < o.radius + 0.4) {
+        o.hit = true;
+        state.health -= 20;
+        state.combo = 0;
+        state.invincibleTimer = 1.5;
+        state.shakeAmount = 0.5;
+        audio.playDamage();
+        spawnParticles(o.x, 0.5, o.z, 0xff3333, 10);
+        showDamageFlash();
+        if (state.health <= 0) {
+          state.health = 0;
+          gameOver();
+        }
+        updateHUD();
+      }
+    });
+  }
+
+  // Health packs
+  state.healthPacks.forEach(h => {
+    if (h.collected) return;
+    const dz = Math.abs(h.z - carZ);
+    const dx = Math.abs(h.x - carX);
+    if (dz < 1.5 && dx < 1.0) {
+      h.collected = true;
+      state.health = Math.min(state.maxHealth, state.health + 30);
+      audio.playHeal();
+      spawnParticles(h.x, 1, h.z, 0x44ff44, 8);
+      showHealFlash();
+      updateHUD();
+    }
+  });
+
+  // Portals
+  state.portals.forEach(p => {
+    if (p.entered) return;
+    const dz = Math.abs(p.z - carZ);
+    if (dz < 3) {
+      p.entered = true;
+      audio.playPortal();
+      
+      // Random: scene change or 2D toggle
+      const action = Math.random();
+      if (action < 0.7) {
+        // Scene change
+        let nextScene;
+        do {
+          nextScene = Math.floor(Math.random() * SCENES.length);
+        } while (nextScene === state.currentScene);
+        showPortalNotification('维度跃迁');
+        transitionToScene(nextScene);
+      } else {
+        // Toggle 2D/3D
+        state.is2D = !state.is2D;
+        showPortalNotification(state.is2D ? '二维幻境' : '三维回归');
+      }
+    }
+  });
+
+  // Track boundaries
+  const halfTrack = TRACK_WIDTH / 2 - 0.3;
+  if (Math.abs(carX) > halfTrack) {
+    state.carX = Math.sign(carX) * halfTrack;
+    state.speed *= 0.95;
+    if (Math.abs(carX) > halfTrack + 0.5 && state.invincibleTimer <= 0) {
+      state.health -= 0.15;
+      if (state.health <= 0) {
+        state.health = 0;
+        gameOver();
+      }
+    }
+  }
+}
+
+// --- Visual Effects ---
+function showDamageFlash() {
+  const el = document.getElementById('damage-flash');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 200);
+}
+
+function showHealFlash() {
+  const el = document.getElementById('heal-flash');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 300);
+}
+
+function showPortalNotification(text) {
+  const el = document.createElement('div');
+  el.className = 'portal-notification visible';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+// --- HUD ---
+function updateHUD() {
+  document.getElementById('score-value').textContent = state.score;
+  document.getElementById('health-bar').style.width = (state.health / state.maxHealth * 100) + '%';
+  
+  // Health bar color
+  const hb = document.getElementById('health-bar');
+  if (state.health < 30) {
+    hb.style.background = '#ff4444';
+  } else if (state.health < 60) {
+    hb.style.background = 'linear-gradient(90deg, #ff8844, #ffaa44)';
+  } else {
+    hb.style.background = 'linear-gradient(90deg, #44cc44, #88ff44)';
+  }
+
+  // Combo display
+  const comboEl = document.getElementById('hud-combo');
+  if (state.combo >= 3) {
+    comboEl.textContent = `连击 x${state.combo}`;
+    comboEl.classList.add('visible');
+  } else {
+    comboEl.classList.remove('visible');
+  }
+}
+
+function updateTimeDisplay() {
+  const mins = Math.floor(state.gameTime / 60);
+  const secs = Math.floor(state.gameTime % 60);
+  document.getElementById('hud-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// --- Game Loop ---
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+  if (!state.running) return;
+  
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+
+  state.gameTime += dt;
+  updateTimeDisplay();
+
+  // Steering input
+  if (keys['ArrowLeft'] || keys['KeyA']) {
+    state.steerTarget = -1;
+  } else if (keys['ArrowRight'] || keys['KeyD']) {
+    state.steerTarget = 1;
+  } else if (touchX === null) {
+    state.steerTarget = 0;
+  }
+
+  // Boosting
+  state.boosting = keys['Space'];
+  state.targetSpeed = state.boosting ? state.boostSpeed : state.baseSpeed;
+
+  // Speed with inertia (heavy car feel)
+  const speedLerp = state.boosting ? 1.5 : 0.8;
+  state.speed += (state.targetSpeed - state.speed) * speedLerp * dt;
+
+  // Gradually increase base speed over time
+  state.baseSpeed = Math.min(state.maxSpeed * 0.7, 80 + state.gameTime * 0.3);
+  state.boostSpeed = Math.min(state.maxSpeed, state.baseSpeed * 1.5);
+
+  // Steering with weight and momentum
+  const steerSpeed = 3.5;
+  const steerDamping = 0.92;
+  state.steerAngle += (state.steerTarget - state.steerAngle) * steerSpeed * dt;
+  if (state.steerTarget === 0) {
+    state.steerAngle *= steerDamping;
+  }
+
+  // Track curve influence
+  state.trackCurveTimer -= dt;
+  if (state.trackCurveTimer <= 0) {
+    state.trackCurveTarget = (Math.random() - 0.5) * 0.3;
+    state.trackCurveTimer = 3 + Math.random() * 5;
+  }
+  state.trackCurve += (state.trackCurveTarget - state.trackCurve) * 0.5 * dt;
+
+  // Move car
+  const moveSpeed = state.speed * dt * 0.15;
+  state.distance += moveSpeed;
+  state.sceneDistance += moveSpeed;
+  state.carX += (state.steerAngle * 3.5 + state.trackCurve * 2) * dt * (state.speed / 80);
+
+  // Car tilt based on steering (weighted feel)
+  const targetTilt = -state.steerAngle * 0.15;
+  state.carTilt += (targetTilt - state.carTilt) * 3 * dt;
+
+  // Update car visual position
+  carGroup.position.x = state.carX;
+  carGroup.position.z = state.distance;
+  carGroup.rotation.z = state.carTilt;
+  
+  // Subtle bounce
+  carGroup.position.y = Math.sin(timestamp * 0.003) * 0.03;
+
+  // Camera follow
+  if (state.is2D) {
+    // 2D top-down view
+    camera.position.set(state.carX * 0.3, 20, state.distance - 5);
+    camera.lookAt(state.carX * 0.3, 0, state.distance + 15);
+    camera.up.set(0, 0, 1);
+  } else {
+    // 3D chase camera with shake
+    const shakeX = state.shakeAmount * (Math.random() - 0.5) * 2;
+    const shakeY = state.shakeAmount * (Math.random() - 0.5) * 2;
+    state.shakeAmount *= 0.9;
+
+    const camTargetX = state.carX * 0.7 + state.steerAngle * 0.5;
+    const camTargetY = 3.5 + state.speed * 0.005;
+    const camTargetZ = state.distance - 6 - state.speed * 0.01;
+
+    camera.position.x += (camTargetX + shakeX - camera.position.x) * 3 * dt;
+    camera.position.y += (camTargetY + shakeY - camera.position.y) * 2 * dt;
+    camera.position.z += (camTargetZ - camera.position.z) * 3 * dt;
+
+    camera.lookAt(
+      state.carX * 0.5 + state.steerAngle * 2,
+      1,
+      state.distance + 15
+    );
+    camera.up.set(0, 1, 0);
+  }
+
+  // Invincibility timer
+  if (state.invincibleTimer > 0) {
+    state.invincibleTimer -= dt;
+    carGroup.visible = Math.floor(timestamp / 100) % 2 === 0;
+  } else {
+    carGroup.visible = true;
+  }
+
+  // Combo timer
+  if (state.comboTimer > 0) {
+    state.comboTimer -= dt;
+    if (state.comboTimer <= 0) {
+      state.combo = 0;
+      document.getElementById('hud-combo').classList.remove('visible');
+    }
+  }
+
+  // Scene transition check
+  if (state.sceneDistance > state.nextSceneAt && !state.portalActive) {
+    state.portalActive = true;
+  }
+
+  // Auto scene change if no portal hit
+  if (state.sceneDistance > state.nextSceneAt + 100) {
+    let nextScene;
+    do {
+      nextScene = Math.floor(Math.random() * SCENES.length);
+    } while (nextScene === state.currentScene);
+    transitionToScene(nextScene);
+  }
+
+  // Update track
+  updateTrack();
+  checkCollisions();
+
+  // Animate diamonds (rotate)
+  state.diamonds.forEach(d => {
+    if (!d.collected) {
+      d.group.children.forEach(c => {
+        c.rotation.y += dt * 2;
+        c.position.y = 1.0 + Math.sin(timestamp * 0.003 + d.z) * 0.2;
+      });
+    }
+  });
+
+  // Animate health packs
+  state.healthPacks.forEach(h => {
+    if (!h.collected) {
+      h.group.children.forEach(c => {
+        c.rotation.y += dt * 1.5;
+        c.position.y = 1.0 + Math.sin(timestamp * 0.004 + h.z) * 0.15;
+      });
+    }
+  });
+
+  // Animate portals
+  state.portals.forEach(p => {
+    if (!p.entered) {
+      p.group.children.forEach((c, i) => {
+        if (i < 4) c.rotation.z += dt * (0.5 + i * 0.3);
+      });
+    }
+  });
+
+  // Animate particles
+  state.particles = state.particles.filter(p => {
+    p.mesh.position.x += p.vx * dt;
+    p.mesh.position.y += p.vy * dt;
+    p.mesh.position.z += p.vz * dt;
+    p.vy -= 5 * dt;
+    p.life -= p.decay;
+    p.mesh.material.opacity = p.life;
+    p.mesh.scale.setScalar(p.life);
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      return false;
+    }
+    return true;
+  });
+
+  // Rotate env objects subtly
+  envGroup.children.forEach(g => {
+    g.children.forEach(c => {
+      if (c.rotation) c.rotation.y += dt * 0.1;
+    });
+  });
+
+  // Speed display
+  document.getElementById('speed-value').textContent = Math.floor(state.speed);
+
+  // Engine sound
+  audio.updateEngine(state.speed);
+
+  // Color transition effect (gradual during gameplay)
+  if (state.gameTime > 30) {
+    state.colorTransition = Math.min(1, (state.gameTime - 30) / 120);
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(gameLoop);
+}
+
+// --- Game Control ---
+function startGame() {
+  audio.init();
+  audio.playStart();
+
+  const startScreen = document.getElementById('start-screen');
+  startScreen.classList.add('hiding');
+  setTimeout(() => startScreen.style.display = 'none', 1000);
+
+  // Show HUD
+  document.getElementById('hud-score').classList.add('visible');
+  document.getElementById('hud-speed').classList.add('visible');
+  document.getElementById('hud-health').style.opacity = '1';
+  document.getElementById('hud-time').style.opacity = '0.7';
+
+  // Reset state
+  state.running = true;
+  state.score = 0;
+  state.health = 100;
+  state.speed = 0;
+  state.carX = 0;
+  state.distance = 0;
+  state.sceneDistance = 0;
+  state.gameTime = 0;
+  state.combo = 0;
+  state.comboTimer = 0;
+  state.is2D = false;
+  state.colorTransition = 0;
+  state.portalActive = false;
+  state.baseSpeed = 80;
+  state.boostSpeed = 140;
+  state.invincibleTimer = 0;
+  state.shakeAmount = 0;
+  state.trackCurve = 0;
+  state.trackCurveTarget = 0;
+  state.trackCurveTimer = 0;
+  state.nextSceneAt = 300;
+
+  // Clear particles
+  state.particles.forEach(p => scene.remove(p.mesh));
+  state.particles = [];
+
+  // Random starting scene
+  const startScene = Math.floor(Math.random() * SCENES.length);
+  applyScene(startScene);
+  initTrack();
+  updateHUD();
+
+  audio.startEngine();
+  audio.startAmbient();
+
+  lastTime = performance.now();
+  requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+  state.running = false;
+  audio.stopEngine();
+  audio.stopAmbient();
+  audio.playGameOver();
+
+  const isNewRecord = state.score > state.highScore;
+  if (isNewRecord) {
+    state.highScore = state.score;
+  }
+
+  // Show end screen
+  setTimeout(() => {
+    const endScreen = document.getElementById('end-screen');
+    document.getElementById('end-score').textContent = state.score;
+    document.getElementById('end-best').textContent = state.highScore;
+    
+    const mins = Math.floor(state.gameTime / 60);
+    const secs = Math.floor(state.gameTime % 60);
+    document.getElementById('end-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+    document.getElementById('new-record').style.display = isNewRecord ? 'inline' : 'none';
+
+    // Encouragement
+    let msg = ENCOURAGEMENTS[0].msg;
+    for (const e of ENCOURAGEMENTS) {
+      if (state.score >= e.min) msg = e.msg;
+    }
+    document.getElementById('end-encouragement').textContent = msg;
+
+    endScreen.classList.add('visible');
+  }, 800);
+}
+
+function restartGame() {
+  const endScreen = document.getElementById('end-screen');
+  endScreen.classList.remove('visible');
+  endScreen.style.display = 'none';
+
+  // Clean up scene objects
+  state.diamonds.forEach(d => scene.remove(d.group));
+  state.obstacles.forEach(o => scene.remove(o.group));
+  state.healthPacks.forEach(h => scene.remove(h.group));
+  state.portals.forEach(p => scene.remove(p.group));
+  state.particles.forEach(p => scene.remove(p.mesh));
+
+  setTimeout(() => {
+    endScreen.style.display = '';
+    startGame();
+  }, 100);
+}
+
+// --- Init ---
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Show high score on start screen
+function updateStartHighScore() {
+  const el = document.getElementById('start-highscore');
+  if (state.highScore > 0) {
+    el.textContent = `最高纪录: ${state.highScore}`;
+    el.classList.add('visible');
+  }
+}
+
+// Boot
+window.addEventListener('load', () => {
+  initThree();
+  
+  // Preview scene on start
+  applyScene(0);
+  
+  // Slow rotate camera for start screen
+  function previewLoop() {
+    if (state.running) return;
+    const t = performance.now() * 0.001;
+    camera.position.set(Math.sin(t * 0.2) * 5, 4, Math.cos(t * 0.2) * 5 - 5);
+    camera.lookAt(0, 1, 5);
+    renderer.render(scene, camera);
+    requestAnimationFrame(previewLoop);
+  }
+  
+  initTrack();
+  
+  // Hide loading
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+    previewLoop();
+  }, 1000);
+});
+</script>
+</body>
+</html>
