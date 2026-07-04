@@ -1439,7 +1439,7 @@ document.addEventListener('touchmove', e => {
   e.preventDefault();
   if (touchX !== null) {
     const dx = e.touches[0].clientX - touchX;
-    state.steerTarget = Math.max(-1, Math.min(1, dx / 60));
+    state.steerTarget = Math.max(-1, Math.min(1, -dx / 60));
     touchX = e.touches[0].clientX;
   }
 }, { passive: false });
@@ -1626,9 +1626,9 @@ function gameLoop(timestamp) {
 
   // Steering input
   if (keys['ArrowLeft'] || keys['KeyA']) {
-    state.steerTarget = -1;
-  } else if (keys['ArrowRight'] || keys['KeyD']) {
     state.steerTarget = 1;
+  } else if (keys['ArrowRight'] || keys['KeyD']) {
+    state.steerTarget = -1;
   } else if (touchX === null) {
     state.steerTarget = 0;
   }
