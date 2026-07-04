@@ -430,6 +430,71 @@ canvas { display: block; }
   display: none;
 }
 
+/* Mobile on-screen controls */
+.mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  left: 0; right: 0;
+  z-index: 110;
+  pointer-events: none;
+  justify-content: space-between;
+  padding: 0 24px;
+  align-items: flex-end;
+}
+
+.mobile-controls .ctrl-btn {
+  pointer-events: all;
+  width: 72px; height: 72px;
+  border: 2px solid rgba(26,26,26,0.5);
+  border-radius: 50%;
+  background: rgba(245,240,232,0.45);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  color: #1a1a1a;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.mobile-controls .ctrl-btn:active,
+.mobile-controls .ctrl-btn.pressed {
+  background: rgba(26,26,26,0.2);
+  transform: scale(0.9);
+}
+
+.mobile-controls .ctrl-btn svg {
+  width: 30px; height: 30px;
+  fill: none;
+  stroke: #1a1a1a;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mobile-controls .ctrl-boost {
+  pointer-events: all;
+  width: 64px; height: 64px;
+  border: 2px solid rgba(123,47,247,0.5);
+  border-radius: 50%;
+  background: rgba(123,47,247,0.08);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 18px;
+  color: #7b2ff7;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.mobile-controls .ctrl-boost:active,
+.mobile-controls .ctrl-boost.pressed {
+  background: rgba(123,47,247,0.25);
+  transform: scale(0.9);
+}
+
 @media (max-width: 768px) {
   .start-title { font-size: 56px; letter-spacing: 8px; }
   .start-subtitle { font-size: 14px; }
@@ -437,6 +502,18 @@ canvas { display: block; }
   .hud-speed { font-size: 32px; }
   .mobile-hint { display: block; }
   .desktop-hint { display: none; }
+  .mobile-controls { display: flex; }
+  body { cursor: auto; }
+  .custom-cursor { display: none; }
+}
+
+/* Also show on touch devices regardless of width */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-controls { display: flex; }
+  .mobile-hint { display: block; }
+  .desktop-hint { display: none; }
+  body { cursor: auto; }
+  .custom-cursor { display: none; }
 }
 </style>
 </head>
@@ -457,7 +534,7 @@ canvas { display: block; }
   <button class="start-btn" id="start-btn" onclick="startGame()">开 始 疾 驰</button>
   <div class="start-instructions">
     <span class="desktop-hint">A / D 或 方向键 操控方向 &nbsp;|&nbsp; 空格键 加速</span>
-    <span class="mobile-hint">触屏左右滑动操控方向</span>
+    <span class="mobile-hint">点击屏幕下方方向键操控</span>
   </div>
   <div class="start-highscore" id="start-highscore"></div>
 </div>
@@ -500,6 +577,17 @@ canvas { display: block; }
     <span id="speed-value">0</span><span> km/h</span>
   </div>
   <div class="hud-combo" id="hud-combo"></div>
+</div>
+
+<!-- Mobile on-screen controls -->
+<div class="mobile-controls" id="mobile-controls">
+  <div class="ctrl-btn" id="btn-left">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </div>
+  <div class="ctrl-boost" id="btn-boost">加速</div>
+  <div class="ctrl-btn" id="btn-right">
+    <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1428,14 +1516,17 @@ document.addEventListener('keyup', e => {
   keys[e.code] = false;
 });
 
-// Touch input
+// Touch input (swipe fallback - used when buttons are not available)
 let touchX = null;
 document.addEventListener('touchstart', e => {
+  // Ignore touches on mobile control buttons
+  if (e.target.closest('.mobile-controls')) return;
   touchX = e.touches[0].clientX;
   state.touchStartX = touchX;
 });
 
 document.addEventListener('touchmove', e => {
+  if (e.target.closest('.mobile-controls')) return;
   e.preventDefault();
   if (touchX !== null) {
     const dx = e.touches[0].clientX - touchX;
@@ -1444,10 +1535,82 @@ document.addEventListener('touchmove', e => {
   }
 }, { passive: false });
 
-document.addEventListener('touchend', () => {
+document.addEventListener('touchend', e => {
+  if (e.target.closest('.mobile-controls')) return;
   touchX = null;
-  state.steerTarget = 0;
+  if (!state.mobileLeft && !state.mobileRight) {
+    state.steerTarget = 0;
+  }
 });
+
+// --- Mobile on-screen button controls ---
+state.mobileLeft = false;
+state.mobileRight = false;
+state.mobileBoost = false;
+
+(function initMobileControls() {
+  const btnLeft = document.getElementById('btn-left');
+  const btnRight = document.getElementById('btn-right');
+  const btnBoost = document.getElementById('btn-boost');
+
+  function handleBtn(btn, stateKey, steerValue) {
+    btn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      state[stateKey] = true;
+      btn.classList.add('pressed');
+      if (steerValue !== undefined) state.steerTarget = steerValue;
+    }, { passive: false });
+
+    btn.addEventListener('touchend', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      state[stateKey] = false;
+      btn.classList.remove('pressed');
+      if (steerValue !== undefined) {
+        // Only reset steer if the other direction is not held
+        if (!state.mobileLeft && !state.mobileRight) {
+          state.steerTarget = 0;
+        } else if (state.mobileLeft) {
+          state.steerTarget = -1;
+        } else if (state.mobileRight) {
+          state.steerTarget = 1;
+        }
+      }
+    }, { passive: false });
+
+    btn.addEventListener('touchcancel', e => {
+      state[stateKey] = false;
+      btn.classList.remove('pressed');
+      if (!state.mobileLeft && !state.mobileRight) {
+        state.steerTarget = 0;
+      }
+    });
+  }
+
+  handleBtn(btnLeft, 'mobileLeft', -1);
+  handleBtn(btnRight, 'mobileRight', 1);
+
+  // Boost button
+  btnBoost.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    state.mobileBoost = true;
+    btnBoost.classList.add('pressed');
+  }, { passive: false });
+
+  btnBoost.addEventListener('touchend', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    state.mobileBoost = false;
+    btnBoost.classList.remove('pressed');
+  }, { passive: false });
+
+  btnBoost.addEventListener('touchcancel', () => {
+    state.mobileBoost = false;
+    btnBoost.classList.remove('pressed');
+  });
+})();
 
 // Custom cursor
 document.addEventListener('mousemove', e => {
@@ -1634,7 +1797,7 @@ function gameLoop(timestamp) {
   }
 
   // Boosting
-  state.boosting = keys['Space'];
+  state.boosting = keys['Space'] || state.mobileBoost;
   state.targetSpeed = state.boosting ? state.boostSpeed : state.baseSpeed;
 
   // Speed with inertia (heavy car feel)
