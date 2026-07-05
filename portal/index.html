@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>产品与项目入口 — 数字产品工作室</title>
+<meta name="description" content="从想法到上线：小程序、互动游戏、行业系统、AI 应用的完整交付。这里是我们全部产品与项目的统一入口。">
+<style>
+/* ============ Reset & Tokens ============ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #16181d;
+  --ink-2: #3c4048;
+  --ink-3: #71767f;
+  --line: #e4e5e8;
+  --line-dark: #c9cbd0;
+  --paper: #fafafa;
+  --paper-2: #f1f2f3;
+  --white: #ffffff;
+  --accent: #2555e7;      /* 冷色点缀，克制使用 */
+  --accent-soft: #eef2fd;
+  --ok: #1d8a54;
+  --warn: #a06a10;
+  --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  --maxw: 1200px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+::selection { background: var(--ink); color: var(--white); }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+@media (max-width: 640px) { .wrap { padding: 0 20px; } }
+
+/* ============ Header ============ */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,250,250,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+
+.brand {
+  display: flex; align-items: baseline; gap: 10px;
+  font-weight: 700; font-size: 17px; letter-spacing: 0.02em;
+}
+
+.brand .brand-mark {
+  width: 22px; height: 22px;
+  background: var(--ink);
+  display: inline-block;
+  position: relative;
+  transform: translateY(3px);
+}
+.brand .brand-mark::after {
+  content: ''; position: absolute;
+  right: -4px; bottom: -4px;
+  width: 8px; height: 8px;
+  background: var(--accent);
+}
+
+.brand .brand-sub {
+  font-weight: 400; font-size: 12px; color: var(--ink-3);
+  letter-spacing: 0.08em;
+}
+
+.header-nav { display: flex; gap: 28px; font-size: 14px; color: var(--ink-2); }
+.header-nav a:hover { color: var(--ink); }
+.header-nav .nav-cta {
+  color: var(--white); background: var(--ink);
+  padding: 7px 16px; font-size: 13px;
+  transition: background .15s;
+}
+.header-nav .nav-cta:hover { background: var(--ink-2); color: var(--white); }
+
+@media (max-width: 720px) {
+  .header-nav a:not(.nav-cta) { display: none; }
+}
+
+/* ============ Hero ============ */
+.hero { border-bottom: 1px solid var(--line); background: var(--white); }
+
+.hero-inner { padding: 88px 0 0; }
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 12px; letter-spacing: 0.14em;
+  color: var(--ink-3);
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-kicker::before {
+  content: ''; width: 32px; height: 1px; background: var(--ink-3); display: inline-block;
+}
+
+.hero h1 {
+  font-size: clamp(34px, 5.2vw, 60px);
+  line-height: 1.18;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  max-width: 21em;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--ink-3);
+}
+
+.hero-lead {
+  margin-top: 24px;
+  font-size: 16px; color: var(--ink-2);
+  max-width: 38em;
+}
+
+.hero-actions { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 14px; padding: 12px 24px;
+  border: 1px solid var(--ink);
+  background: var(--ink); color: var(--white);
+  transition: all .15s;
+}
+.btn:hover { background: var(--ink-2); border-color: var(--ink-2); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--paper-2); }
+.btn .arr { font-family: var(--mono); }
+
+/* Hero stats strip */
+.hero-stats {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.hero-stat {
+  padding: 24px 24px 28px 0;
+  border-right: 1px solid var(--line);
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat + .hero-stat { padding-left: 24px; }
+
+.hero-stat .num {
+  font-family: var(--mono);
+  font-size: 30px; font-weight: 600; letter-spacing: -0.02em;
+}
+.hero-stat .num sup { font-size: 14px; color: var(--accent); }
+.hero-stat .label { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+@media (max-width: 860px) {
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .hero-stat:nth-child(2) { border-right: none; }
+  .hero-stat:nth-child(3) { border-top: 1px solid var(--line); padding-left: 0; }
+  .hero-stat:nth-child(4) { border-top: 1px solid var(--line); }
+}
+
+/* ============ Capabilities ============ */
+.section { padding: 84px 0; }
+.section.alt { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 44px; gap: 24px; flex-wrap: wrap;
+}
+
+.section-head h2 {
+  font-size: 26px; font-weight: 700; letter-spacing: -0.01em;
+}
+
+.section-head .index {
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  letter-spacing: 0.1em;
+}
+
+.cap-list { border-top: 1px solid var(--line); }
+
+.cap-row {
+  display: grid;
+  grid-template-columns: 56px 220px 1fr 120px;
+  gap: 24px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: baseline;
+}
+
+.cap-row .cap-no { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.cap-row .cap-name { font-size: 17px; font-weight: 600; }
+.cap-row .cap-desc { font-size: 14px; color: var(--ink-2); }
+.cap-row .cap-out {
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  text-align: right;
+}
+
+@media (max-width: 860px) {
+  .cap-row { grid-template-columns: 40px 1fr; grid-template-rows: auto auto; }
+  .cap-row .cap-desc { grid-column: 2; }
+  .cap-row .cap-out { display: none; }
+}
+
+/* ============ Products Section ============ */
+.products-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.cat-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.cat-tab {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  color: var(--ink-3);
+  transition: all .12s;
+}
+.cat-tab:hover { color: var(--ink); }
+.cat-tab.active {
+  border-color: var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+.cat-tab .cnt {
+  font-family: var(--mono); font-size: 11px; margin-left: 5px; color: var(--ink-3);
+}
+
+.tools-right { display: flex; gap: 12px; align-items: center; }
+
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line-dark);
+  background: var(--white);
+  padding: 8px 12px;
+  width: 220px;
+}
+.search-box svg { flex: none; opacity: .45; }
+.search-box input {
+  border: none; outline: none; background: none;
+  font-size: 13.5px; width: 100%;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.feat-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13.5px; color: var(--ink-2);
+  border: 1px solid var(--line-dark);
+  background: var(--white);
+  padding: 8px 14px;
+  transition: all .12s;
+  user-select: none;
+}
+.feat-toggle.on { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+/* -- Featured band (编辑式大条目) -- */
+.featured-band { margin: 36px 0 12px; }
+
+.featured-item {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.featured-item:hover { box-shadow: 6px 6px 0 var(--paper-2), 6px 6px 0 1px var(--line-dark); }
+
+.featured-copy { padding: 40px 44px; display: flex; flex-direction: column; }
+
+.featured-tagline {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+  color: var(--accent); margin-bottom: 16px;
+}
+
+.featured-copy h3 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.featured-copy .pos { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+.featured-copy .desc { font-size: 14px; color: var(--ink-3); margin-top: 16px; max-width: 34em; }
+
+.featured-meta {
+  margin-top: auto; padding-top: 28px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+
+.featured-visual {
+  border-left: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(45deg, transparent 0 10px, rgba(22,24,29,0.022) 10px 20px),
+    var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  min-height: 260px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .featured-item { grid-template-columns: 1fr; }
+  .featured-visual { border-left: none; border-top: 1px solid var(--line); min-height: 200px; }
+}
+
+/* -- Product list (信息层级列表，非同质卡片) -- */
+.product-list { margin-top: 28px; border-top: 1px solid var(--line-dark); }
+
+.product-row {
+  display: grid;
+  grid-template-columns: 118px 1fr 300px 130px;
+  gap: 28px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  align-items: start;
+  transition: background .12s;
+}
+.product-row:hover { background: var(--white); box-shadow: 0 0 0 12px var(--white); }
+
+.pr-cat {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--ink-3); padding-top: 5px;
+}
+
+.pr-main .pr-name {
+  font-size: 17px; font-weight: 650;
+  display: flex; align-items: center; gap: 10px;
+}
+.pr-main .pr-pos { font-size: 14px; color: var(--ink-2); margin-top: 3px; }
+
+.pr-desc { font-size: 13px; color: var(--ink-3); padding-top: 4px; }
+
+.pr-side {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  padding-top: 3px;
+}
+
+.pr-entry {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--ink-2);
+  display: flex; align-items: center; gap: 6px;
+}
+.pr-entry::after { content: '→'; transition: transform .12s; }
+.product-row:hover .pr-entry::after { transform: translateX(3px); }
+
+@media (max-width: 960px) {
+  .product-row { grid-template-columns: 1fr 110px; }
+  .pr-cat { display: none; }
+  .pr-desc { display: none; }
+}
+
+/* Status & tags */
+.status {
+  font-size: 11px; padding: 3px 8px;
+  border: 1px solid; font-weight: 500; letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.status.live { color: var(--ok); border-color: rgba(29,138,84,.35); background: rgba(29,138,84,.05); }
+.status.demo { color: var(--accent); border-color: rgba(37,85,231,.3); background: var(--accent-soft); }
+.status.incub { color: var(--warn); border-color: rgba(160,106,16,.3); background: rgba(160,106,16,.05); }
+
+.tag {
+  font-size: 11.5px; color: var(--ink-3);
+  background: var(--paper-2);
+  padding: 3px 9px;
+}
+
+.star {
+  color: var(--accent); font-size: 13px;
+}
+
+/* Empty state */
+.empty-state {
+  padding: 90px 0; text-align: center;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+}
+.empty-state .es-mark { font-family: var(--mono); font-size: 28px; margin-bottom: 14px; }
+.empty-state p { font-size: 14px; }
+.empty-state button {
+  margin-top: 18px; font-size: 13px;
+  background: none; border: 1px solid var(--line-dark);
+  padding: 8px 18px; color: var(--ink-2);
+}
+.empty-state button:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ============ Cases strip ============ */
+.case-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.case-cell {
+  background: var(--white);
+  padding: 30px 28px 34px;
+}
+
+.case-cell .c-industry {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.08em; margin-bottom: 14px;
+}
+.case-cell h4 { font-size: 16px; font-weight: 650; }
+.case-cell p { font-size: 13.5px; color: var(--ink-2); margin-top: 8px; }
+.case-cell .c-result {
+  margin-top: 18px;
+  font-size: 13px; color: var(--ink);
+  border-left: 2px solid var(--ink);
+  padding-left: 12px;
+}
+
+@media (max-width: 860px) { .case-grid { grid-template-columns: 1fr; } }
+
+/* ============ Contact ============ */
+.contact-band {
+  background: var(--ink); color: var(--white);
+}
+
+.contact-inner {
+  padding: 84px 0;
+  display: grid; grid-template-columns: 1fr 340px; gap: 60px;
+  align-items: center;
+}
+
+.contact-inner h2 { font-size: clamp(26px, 3.6vw, 40px); line-height: 1.25; font-weight: 700; }
+.contact-inner .sub { color: rgba(255,255,255,.6); margin-top: 16px; font-size: 15px; max-width: 30em; }
+
+.contact-actions { display: flex; flex-direction: column; gap: 12px; }
+
+.contact-actions .btn { justify-content: center; border-color: var(--white); background: var(--white); color: var(--ink); }
+.contact-actions .btn:hover { background: rgba(255,255,255,.88); }
+.contact-actions .btn.line { background: transparent; color: var(--white); border-color: rgba(255,255,255,.4); }
+.contact-actions .btn.line:hover { border-color: var(--white); }
+
+.contact-note { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.4); text-align: center; }
+
+@media (max-width: 800px) { .contact-inner { grid-template-columns: 1fr; gap: 36px; } }
+
+/* ============ Footer ============ */
+.site-footer {
+  padding: 36px 0;
+  font-size: 12.5px; color: var(--ink-3);
+  display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+}
+.site-footer .f-mono { font-family: var(--mono); font-size: 11px; }
+
+/* ============ Detail Drawer ============ */
+.drawer-mask {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(22,24,29,0.4);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.drawer-mask.open { opacity: 1; pointer-events: all; }
+
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 201;
+  width: min(520px, 100vw);
+  background: var(--white);
+  border-left: 1px solid var(--line);
+  transform: translateX(100%);
+  transition: transform .25s cubic-bezier(.3,.8,.3,1);
+  overflow-y: auto;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-head {
+  position: sticky; top: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.drawer-head .dh-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-3); }
+.drawer-close {
+  background: none; border: 1px solid var(--line-dark);
+  width: 32px; height: 32px; font-size: 16px; line-height: 1;
+  color: var(--ink-2);
+}
+.drawer-close:hover { border-color: var(--ink); color: var(--ink); }
+
+.drawer-body { padding: 32px 28px 48px; }
+
+.drawer-body .d-cat { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+.drawer-body h3 { font-size: 24px; font-weight: 700; margin-top: 10px; }
+.drawer-body .d-pos { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+
+.d-status-row { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+
+.d-section { margin-top: 32px; }
+.d-section .d-label {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.1em; margin-bottom: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+}
+.d-section p { font-size: 14px; color: var(--ink-2); }
+
+.d-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.d-entries { display: flex; flex-direction: column; gap: 10px; }
+
+.d-entry {
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid var(--line-dark);
+  padding: 13px 16px;
+  font-size: 14px;
+  transition: all .12s;
+}
+.d-entry:hover { border-color: var(--ink); }
+.d-entry .de-type { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+.qr-block {
+  display: flex; gap: 20px; align-items: center;
+  border: 1px solid var(--line-dark);
+  padding: 18px;
+}
+
+.qr-ph {
+  width: 110px; height: 110px; flex: none;
+  background:
+    repeating-linear-gradient(0deg, var(--ink) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 12px);
+  background-blend-mode: multiply;
+  opacity: .12;
+  position: relative;
+}
+.qr-ph::after {
+  content: 'QR';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 13px; color: var(--ink);
+  opacity: 1;
+}
+
+.qr-info { font-size: 13px; color: var(--ink-2); }
+.qr-info .q-title { font-weight: 600; color: var(--ink); font-size: 14px; margin-bottom: 4px; }
+
+/* Reveal animation */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .5s; }
+.reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ============ Header ============ -->
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark"></span>
+      <span>启点工作室</span>
+      <span class="brand-sub">DIGITAL PRODUCT STUDIO</span>
+    </a>
+    <nav class="header-nav">
+      <a href="#capabilities">能力</a>
+      <a href="#products">产品入口</a>
+      <a href="#cases">案例</a>
+      <a class="nav-cta" href="#contact">合作咨询</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ Hero ============ -->
+<section class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div class="hero-kicker">PRODUCTS &amp; PROJECTS INDEX · 产品与项目总览</div>
+    <h1>我们把想法做成<br>能上线运行的产品。<em>这里是全部入口。</em></h1>
+    <p class="hero-lead">小程序、互动游戏、客户官网、行业系统、AI 应用 —— 每一个条目背后都是一次完整交付。你可以直接点开、扫码体验，或以任何一个为起点，和我们聊聊你的项目。</p>
+    <div class="hero-actions">
+      <a class="btn" href="#products">浏览产品入口 <span class="arr">→</span></a>
+      <a class="btn ghost" href="#contact">谈一个新项目</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" data-count="14">0</div><div class="label">已交付产品与项目</div></div>
+      <div class="hero-stat"><div class="num" data-count="6">0</div><div class="label">覆盖行业领域</div></div>
+      <div class="hero-stat"><div class="num" data-count="9">0</div><div class="label">线上运行中</div></div>
+      <div class="hero-stat"><div class="num" data-count="3"><span></span>0<sup> 周</sup></div><div class="label">最快原型到上线周期</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Capabilities ============ -->
+<section class="section" id="capabilities">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>从想法到上线，我们负责全程</h2>
+      <span class="index">01 / CAPABILITIES</span>
+    </div>
+    <div class="cap-list reveal">
+      <div class="cap-row">
+        <span class="cap-no">C-01</span>
+        <span class="cap-name">小程序开发</span>
+        <span class="cap-desc">微信生态内的工具、玩法与运营型小程序，从设计到审核上架。</span>
+        <span class="cap-out">WeChat MiniApp</span>
+      </div>
+      <div class="cap-row">
+        <span class="cap-no">C-02</span>
+        <span class="cap-name">游戏与互动玩法</span>
+        <span class="cap-desc">Web 与小程序端的轻游戏、营销互动、创意玩法原型。</span>
+        <span class="cap-out">H5 / Canvas / WebGL</span>
+      </div>
+      <div class="cap-row">
+        <span class="cap-no">C-03</span>
+        <span class="cap-name">官网与落地页</span>
+        <span class="cap-desc">品牌官网、产品落地页、活动页 —— 重表达、重转化。</span>
+        <span class="cap-out">Web</span>
+      </div>
+      <div class="cap-row">
+        <span class="cap-no">C-04</span>
+        <span class="cap-name">行业系统与工具</span>
+        <span class="cap-desc">项目管理、进销存、预约排期等垂直业务系统的定制开发。</span>
+        <span class="cap-out">SaaS / Internal</span>
+      </div>
+      <div class="cap-row">
+        <span class="cap-no">C-05</span>
+        <span class="cap-name">AI 工具与效率应用</span>
+        <span class="cap-desc">把大模型能力落到具体业务：客服、文档、创作与流程自动化。</span>
+        <span class="cap-out">LLM / Agent</span>
+      </div>
+      <div class="cap-row">
+        <span class="cap-no">C-06</span>
+        <span class="cap-name">完整交付与运营</span>
+        <span class="cap-desc">需求、原型、研发、上线、迭代 —— 一个团队负责到底。</span>
+        <span class="cap-out">End-to-End</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Products ============ -->
+<section class="section alt" id="products">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>产品与项目入口</h2>
+      <span class="index">02 / PRODUCTS INDEX</span>
+    </div>
+
+    <div class="products-toolbar reveal">
+      <div class="cat-tabs" id="cat-tabs"></div>
+      <div class="tools-right">
+        <label class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="search-input" placeholder="搜索产品、标签…">
+        </label>
+        <button class="feat-toggle" id="feat-toggle">★ 只看精选</button>
+      </div>
+    </div>
+
+    <!-- Featured product band -->
+    <div class="featured-band" id="featured-band"></div>
+
+    <!-- Product rows -->
+    <div class="product-list" id="product-list"></div>
+  </div>
+</section>
+
+<!-- ============ Cases ============ -->
+<section class="section" id="cases">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>行业案例摘录</h2>
+      <span class="index">03 / SELECTED CASES</span>
+    </div>
+    <div class="case-grid reveal">
+      <div class="case-cell">
+        <div class="c-industry">零售 · 会员运营</div>
+        <h4>连锁烘焙品牌会员小程序</h4>
+        <p>为 40+ 门店的烘焙品牌搭建会员积分、储值与到店核销体系。</p>
+        <div class="c-result">上线 3 个月，会员复购率提升 27%</div>
+      </div>
+      <div class="case-cell">
+        <div class="c-industry">制造 · 内部系统</div>
+        <h4>设备巡检与工单系统</h4>
+        <p>替代纸质巡检流程，扫码报修、自动派单、数据看板一体化。</p>
+        <div class="c-result">巡检记录效率提升约 3 倍，漏检率趋近于零</div>
+      </div>
+      <div class="case-cell">
+        <div class="c-industry">教育 · AI 应用</div>
+        <h4>题库智能批改助手</h4>
+        <p>基于大模型的主观题批改与讲评生成，接入机构已有题库。</p>
+        <div class="c-result">教师批改时间平均缩短 60%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Contact ============ -->
+<section class="contact-band" id="contact">
+  <div class="wrap contact-inner">
+    <div>
+      <h2>有一个想法，<br>想知道能不能做出来？</h2>
+      <p class="sub">告诉我们你的场景和预算区间，我们会在一个工作日内回复可行性评估与大致周期。也欢迎先从上面任何一个产品聊起。</p>
+    </div>
+    <div class="contact-actions">
+      <a class="btn" href="mailto:hello@example.com?subject=%E5%90%88%E4%BD%9C%E5%92%A8%E8%AF%A2">发邮件谈合作</a>
+      <a class="btn line" href="#products">再看看产品</a>
+      <span class="contact-note">hello@example.com · 工作日 10:00–19:00</span>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer wrap">
+  <span>© 2026 启点工作室 · 数字产品设计与研发</span>
+  <span class="f-mono">BUILT IN-HOUSE · NO TEMPLATE</span>
+</footer>
+
+<!-- ============ Detail Drawer ============ -->
+<div class="drawer-mask" id="drawer-mask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="dh-label">PRODUCT DETAIL</span>
+    <button class="drawer-close" id="drawer-close">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<script>
+/* ============================================================
+   数据结构说明（为后台动态维护预留）：
+   - 后期后台接口约定返回 { categories: [...], products: [...] }
+   - product 字段与后台字段一一对应：
+     id / name / positioning / description / category(分类key)
+     status: live(已上线) | demo(可演示) | incub(孵化中)
+     tags / featured(是否精选) / weight(排序权重，越大越靠前)
+     entries: [{ type: link|qr|demo|consult, label, url?, qrImage? }]
+   - 当前为 mock 数据，替换为 fetch(API) 即可动态化。
+============================================================ */
+
+var CATEGORIES = [
+  { key: 'all',    label: '全部入口' },
+  { key: 'mini',   label: '好玩小程序' },
+  { key: 'game',   label: '互动游戏' },
+  { key: 'site',   label: '客户站点' },
+  { key: 'system', label: '行业产品' },
+  { key: 'ai',     label: 'AI 应用' },
+  { key: 'case',   label: '项目案例' }
+];
+
+var STATUS_MAP = {
+  live:  { label: '已上线', cls: 'live' },
+  demo:  { label: '可演示', cls: 'demo' },
+  incub: { label: '孵化中', cls: 'incub' }
+};
+
+var PRODUCTS = [
+  {
+    id: 'p01', name: '墨线狂飙',
+    positioning: '水墨线稿风 3D 赛车 · 无尽模式网页游戏',
+    description: '以中国水墨线稿为视觉语言的 3D 赛车游戏。六个诗意场景随机切换，穿越传送门可以在三维与二维视角间跳转。收集钻石、躲避障碍、挑战本局最高分。全程 Web Audio 合成音效，无任何外部资源依赖。',
+    category: 'game', status: 'live',
+    tags: ['Three.js', 'WebGL', '创意玩法', '音效合成'],
+    featured: true, weight: 95,
+    entries: [
+      { type: 'link', label: '立即游玩', url: '../index.html' },
+      { type: 'consult', label: '定制同类互动游戏' }
+    ]
+  },
+  {
+    id: 'p02', name: '拾光打卡',
+    positioning: '习惯养成 + 好友互督的轻社交小程序',
+    description: '每天一张照片记录一个习惯，好友之间可以互相「监工」。连续打卡生成时间轴海报，支持一键分享。适合社群运营与私域活跃场景。',
+    category: 'mini', status: 'live',
+    tags: ['微信小程序', '社交', '习惯养成'],
+    featured: true, weight: 90,
+    entries: [
+      { type: 'qr', label: '微信扫码体验' },
+      { type: 'consult', label: '咨询同类小程序' }
+    ]
+  },
+  {
+    id: 'p03', name: '巡检宝',
+    positioning: '制造业设备巡检与工单管理系统',
+    description: '扫码巡检、异常上报、自动派单、维修闭环、数据看板。已在两家制造企业稳定运行超过一年，支持私有化部署。',
+    category: 'system', status: 'live',
+    tags: ['行业系统', 'B端', '私有化部署'],
+    featured: false, weight: 80,
+    entries: [
+      { type: 'demo', label: '预约系统演示' },
+      { type: 'consult', label: '咨询定制开发' }
+    ]
+  },
+  {
+    id: 'p04', name: '答案之书 Lite',
+    positioning: '一个供你摇一摇的解压小玩具',
+    description: '有问题？摇一摇手机，答案之书给你一个玄学答案。上线两周自然传播突破 10 万次打开，是我们验证轻量传播玩法的实验产品。',
+    category: 'mini', status: 'live',
+    tags: ['微信小程序', '传播玩法', '轻工具'],
+    featured: false, weight: 70,
+    entries: [
+      { type: 'qr', label: '微信扫码体验' }
+    ]
+  },
+  {
+    id: 'p05', name: '批改星',
+    positioning: '面向教培机构的 AI 主观题批改助手',
+    description: '接入机构已有题库，基于大模型对主观题作答进行批改、评分与讲评生成。教师复核确认后一键下发，平均节省 60% 批改时间。',
+    category: 'ai', status: 'demo',
+    tags: ['LLM', '教育', 'AI 工具'],
+    featured: true, weight: 85,
+    entries: [
+      { type: 'demo', label: '申请在线演示' },
+      { type: 'consult', label: '咨询接入方案' }
+    ]
+  },
+  {
+    id: 'p06', name: '山茶餐厅官网',
+    positioning: '一家云南菜餐厅的品牌官网与订座页',
+    description: '为连锁云南菜品牌设计开发的官网：菜品故事、门店地图、在线订座。移动端优先，加载体积控制在 300KB 以内。',
+    category: 'site', status: 'live',
+    tags: ['品牌官网', '响应式', '性能优化'],
+    featured: false, weight: 60,
+    entries: [
+      { type: 'link', label: '访问官网', url: 'https://example.com' },
+      { type: 'consult', label: '咨询官网建设' }
+    ]
+  },
+  {
+    id: 'p07', name: '合成大西瓜 · 团建版',
+    positioning: '可定制品牌元素的经典合成玩法',
+    description: '经典合成玩法的可定制版本：替换品牌 IP 形象、定制排行榜与奖品逻辑，适合年会、团建与营销活动。',
+    category: 'game', status: 'demo',
+    tags: ['H5 游戏', '营销互动', '可定制'],
+    featured: false, weight: 55,
+    entries: [
+      { type: 'demo', label: '试玩演示版' },
+      { type: 'consult', label: '咨询品牌定制' }
+    ]
+  },
+  {
+    id: 'p08', name: '会记 AI',
+    positioning: '会议录音转纪要的效率工具',
+    description: '上传录音或实时转写，自动生成结构化会议纪要、待办清单与责任人。支持导出到飞书文档与企业微信。',
+    category: 'ai', status: 'incub',
+    tags: ['LLM', '效率工具', '语音转写'],
+    featured: false, weight: 50,
+    entries: [
+      { type: 'consult', label: '加入内测名单' }
+    ]
+  },
+  {
+    id: 'p09', name: '预约排期系统',
+    positioning: '面向服务门店的档期与预约管理',
+    description: '为摄影工作室、美容门店等预约制业态设计：客户在线选档期、店员排班管理、自动短信提醒、订金收取。',
+    category: 'system', status: 'demo',
+    tags: ['行业系统', '预约制', 'SaaS'],
+    featured: false, weight: 45,
+    entries: [
+      { type: 'demo', label: '预约系统演示' },
+      { type: 'consult', label: '咨询部署方案' }
+    ]
+  },
+  {
+    id: 'p10', name: '烘焙品牌会员小程序',
+    positioning: '40+ 门店连锁品牌的会员运营中枢',
+    description: '会员积分、储值卡、到店核销、生日营销一体化。上线三个月会员复购率提升 27%。该项目为客户委托开发，此处展示为案例。',
+    category: 'case', status: 'live',
+    tags: ['项目案例', '零售', '会员体系'],
+    featured: false, weight: 65,
+    entries: [
+      { type: 'consult', label: '咨询同类项目' }
+    ]
+  },
+  {
+    id: 'p11', name: '城市徒步图鉴',
+    positioning: '边走边集卡的城市探索小程序',
+    description: '按路线打卡城市地标，收集手绘风景卡片，走完整条路线解锁限定徽章。与本地文旅账号联合运营中。',
+    category: 'mini', status: 'incub',
+    tags: ['微信小程序', '文旅', 'LBS'],
+    featured: false, weight: 40,
+    entries: [
+      { type: 'consult', label: '关注上线通知' }
+    ]
+  },
+  {
+    id: 'p12', name: '律所知识库助手',
+    positioning: '基于内部文书的 AI 检索问答系统',
+    description: '为律师事务所搭建的私有知识库问答：合同模板、过往案例、法规条文统一检索，回答附带原文出处。私有化部署，数据不出内网。',
+    category: 'case', status: 'live',
+    tags: ['项目案例', 'AI 应用', '私有化部署'],
+    featured: false, weight: 58,
+    entries: [
+      { type: 'consult', label: '咨询同类项目' }
+    ]
+  }
+];
+
+/* ============ State ============ */
+var uiState = { cat: 'all', keyword: '', featOnly: false };
+
+/* ============ Render: category tabs ============ */
+function renderTabs() {
+  var el = document.getElementById('cat-tabs');
+  var html = '';
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    var c = CATEGORIES[i];
+    var count = c.key === 'all'
+      ? PRODUCTS.length
+      : PRODUCTS.filter(function(p){ return p.category === c.key; }).length;
+    html += '<button class="cat-tab' + (uiState.cat === c.key ? ' active' : '') + '" data-cat="' + c.key + '">'
+          + c.label + '<span class="cnt">' + count + '</span></button>';
+  }
+  el.innerHTML = html;
+
+  var btns = el.getElementsByClassName('cat-tab');
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].onclick = function() {
+      uiState.cat = this.getAttribute('data-cat');
+      renderTabs(); renderProducts();
+    };
+  }
+}
+
+/* ============ Filtering ============ */
+function getFiltered() {
+  var kw = uiState.keyword.trim().toLowerCase();
+  return PRODUCTS.filter(function(p) {
+    if (uiState.cat !== 'all' && p.category !== uiState.cat) return false;
+    if (uiState.featOnly && !p.featured) return false;
+    if (kw) {
+      var hay = (p.name + ' ' + p.positioning + ' ' + p.description + ' ' + p.tags.join(' ')).toLowerCase();
+      if (hay.indexOf(kw) === -1) return false;
+    }
+    return true;
+  }).sort(function(a, b) { return b.weight - a.weight; });
+}
+
+function catLabel(key) {
+  for (var i = 0; i < CATEGORIES.length; i++) if (CATEGORIES[i].key === key) return CATEGORIES[i].label;
+  return key;
+}
+
+/* ============ Render: products ============ */
+function renderProducts() {
+  var list = getFiltered();
+  var featBand = document.getElementById('featured-band');
+  var listEl = document.getElementById('product-list');
+
+  /* Featured band: 取权重最高的精选一条，做编辑式大条目 */
+  var feat = null;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].featured) { feat = list[i]; break; }
+  }
+
+  if (feat && !uiState.keyword) {
+    var st = STATUS_MAP[feat.status];
+    featBand.innerHTML =
+      '<div class="featured-item" data-id="' + feat.id + '">'
+      + '<div class="featured-copy">'
+      +   '<div class="featured-tagline">FEATURED · 本期精选</div>'
+      +   '<h3>' + feat.name + '</h3>'
+      +   '<div class="pos">' + feat.positioning + '</div>'
+      +   '<div class="desc">' + feat.description + '</div>'
+      +   '<div class="featured-meta">'
+      +     '<span class="status ' + st.cls + '">' + st.label + '</span>'
+      +     feat.tags.slice(0, 3).map(function(t){ return '<span class="tag">' + t + '</span>'; }).join('')
+      +   '</div>'
+      + '</div>'
+      + '<div class="featured-visual">'
+      +   '<svg width="220" height="140" viewBox="0 0 220 140" fill="none" stroke="#16181d" stroke-width="1" opacity="0.7">'
+      +     '<path d="M10 120 L60 40 L110 120 Z"/><path d="M70 120 L130 20 L190 120 Z" opacity="0.5"/>'
+      +     '<line x1="0" y1="120" x2="220" y2="120"/><circle cx="180" cy="35" r="14" opacity="0.6"/>'
+      +     '<path d="M20 130 C 60 126, 160 126, 200 130" opacity="0.4"/>'
+      +   '</svg>'
+      + '</div>'
+      + '</div>';
+    featBand.style.display = '';
+  } else {
+    featBand.innerHTML = '';
+    featBand.style.display = 'none';
+  }
+
+  /* List rows（排除已在精选位展示的产品） */
+  var rows = list.filter(function(p){ return !feat || p.id !== feat.id || uiState.keyword; });
+
+  if (rows.length === 0 && !feat) {
+    listEl.innerHTML =
+      '<div class="empty-state">'
+      + '<div class="es-mark">[ ∅ ]</div>'
+      + '<p>没有符合条件的产品。换个关键词，或看看全部入口。</p>'
+      + '<button onclick="resetFilters()">重置筛选</button>'
+      + '</div>';
+    return;
+  }
+
+  var html = '';
+  for (var k = 0; k < rows.length; k++) {
+    var p = rows[k];
+    var s = STATUS_MAP[p.status];
+    html +=
+      '<div class="product-row" data-id="' + p.id + '">'
+      + '<span class="pr-cat">' + catLabel(p.category) + '</span>'
+      + '<div class="pr-main">'
+      +   '<div class="pr-name">' + (p.featured ? '<span class="star">★</span>' : '') + p.name
+      +     ' <span class="status ' + s.cls + '">' + s.label + '</span></div>'
+      +   '<div class="pr-pos">' + p.positioning + '</div>'
+      + '</div>'
+      + '<div class="pr-desc">' + p.description.slice(0, 62) + '…</div>'
+      + '<div class="pr-side"><span class="pr-entry">查看详情</span></div>'
+      + '</div>';
+  }
+  listEl.innerHTML = html;
+
+  /* Bind clicks */
+  var allRows = document.querySelectorAll('[data-id]');
+  for (var m = 0; m < allRows.length; m++) {
+    allRows[m].onclick = function() { openDrawer(this.getAttribute('data-id')); };
+  }
+}
+
+function resetFilters() {
+  uiState.cat = 'all'; uiState.keyword = ''; uiState.featOnly = false;
+  document.getElementById('search-input').value = '';
+  document.getElementById('feat-toggle').className = 'feat-toggle';
+  renderTabs(); renderProducts();
+}
+
+/* ============ Detail Drawer ============ */
+function openDrawer(id) {
+  var p = null;
+  for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === id) { p = PRODUCTS[i]; break; }
+  if (!p) return;
+
+  var s = STATUS_MAP[p.status];
+  var body = document.getElementById('drawer-body');
+
+  var entriesHtml = '';
+  var hasQr = false;
+  for (var j = 0; j < p.entries.length; j++) {
+    var e = p.entries[j];
+    if (e.type === 'qr') { hasQr = true; continue; }
+    var typeLabel = { link: 'LINK', demo: 'DEMO', consult: 'CONSULT' }[e.type] || 'ENTRY';
+    if (e.type === 'link' && e.url) {
+      entriesHtml += '<a class="d-entry" href="' + e.url + '" target="_blank" rel="noopener">'
+        + '<span>' + e.label + '</span><span class="de-type">' + typeLabel + ' →</span></a>';
+    } else if (e.type === 'consult') {
+      entriesHtml += '<a class="d-entry" href="mailto:hello@example.com?subject=' + encodeURIComponent('【' + p.name + '】' + e.label) + '">'
+        + '<span>' + e.label + '</span><span class="de-type">' + typeLabel + ' →</span></a>';
+    } else {
+      entriesHtml += '<a class="d-entry" href="mailto:hello@example.com?subject=' + encodeURIComponent('【' + p.name + '】预约演示') + '">'
+        + '<span>' + e.label + '</span><span class="de-type">' + typeLabel + ' →</span></a>';
+    }
+  }
+
+  var qrHtml = hasQr
+    ? '<div class="d-section"><div class="d-label">小程序入口</div>'
+      + '<div class="qr-block"><div class="qr-ph"></div>'
+      + '<div class="qr-info"><div class="q-title">微信扫码进入</div>打开微信「扫一扫」即可体验。<br>（原型阶段为占位图，后台可随时更换真实二维码）</div>'
+      + '</div></div>'
+    : '';
+
+  body.innerHTML =
+    '<div class="d-cat">' + catLabel(p.category).toUpperCase() + ' · ' + p.id.toUpperCase() + '</div>'
+    + '<h3>' + p.name + '</h3>'
+    + '<div class="d-pos">' + p.positioning + '</div>'
+    + '<div class="d-status-row"><span class="status ' + s.cls + '">' + s.label + '</span>'
+    + (p.featured ? '<span class="tag">★ 精选</span>' : '') + '</div>'
+    + '<div class="d-section"><div class="d-label">产品简介</div><p>' + p.description + '</p></div>'
+    + '<div class="d-section"><div class="d-label">标签</div><div class="d-tags">'
+    + p.tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join('')
+    + '</div></div>'
+    + qrHtml
+    + (entriesHtml ? '<div class="d-section"><div class="d-label">访问入口</div><div class="d-entries">' + entriesHtml + '</div></div>' : '')
+    + '<div class="d-section"><div class="d-label">想做类似的产品？</div>'
+    + '<p>直接回复你的行业与场景，我们会给出可行性评估与周期报价。</p>'
+    + '<div style="margin-top:14px"><a class="btn" href="mailto:hello@example.com?subject=' + encodeURIComponent('【' + p.name + '】合作咨询') + '">咨询这个方向 <span class="arr">→</span></a></div>'
+    + '</div>';
+
+  document.getElementById('drawer').className = 'drawer open';
+  document.getElementById('drawer-mask').className = 'drawer-mask open';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').className = 'drawer';
+  document.getElementById('drawer-mask').className = 'drawer-mask';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('drawer-close').onclick = closeDrawer;
+document.getElementById('drawer-mask').onclick = closeDrawer;
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
+
+/* ============ Search & featured toggle ============ */
+document.getElementById('search-input').addEventListener('input', function() {
+  uiState.keyword = this.value;
+  renderProducts();
+});
+
+document.getElementById('feat-toggle').onclick = function() {
+  uiState.featOnly = !uiState.featOnly;
+  this.className = 'feat-toggle' + (uiState.featOnly ? ' on' : '');
+  renderProducts();
+};
+
+/* ============ Count-up numbers ============ */
+function countUp() {
+  var nums = document.querySelectorAll('[data-count]');
+  for (var i = 0; i < nums.length; i++) {
+    (function(el) {
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      var cur = 0;
+      var hasSup = el.querySelector('sup');
+      var supHtml = hasSup ? hasSup.outerHTML : '';
+      var step = Math.max(1, Math.floor(target / 24));
+      var t = setInterval(function() {
+        cur += step;
+        if (cur >= target) { cur = target; clearInterval(t); }
+        el.innerHTML = cur + supHtml;
+      }, 40);
+    })(nums[i]);
+  }
+}
+
+/* ============ Reveal on scroll ============ */
+function initReveal() {
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) {
+        if (en.isIntersecting) { en.target.className += ' in'; io.unobserve(en.target); }
+      });
+    }, { threshold: 0.08 });
+    for (var i = 0; i < els.length; i++) io.observe(els[i]);
+  } else {
+    for (var j = 0; j < els.length; j++) els[j].className += ' in';
+  }
+}
+
+/* ============ Boot ============ */
+renderTabs();
+renderProducts();
+countUp();
+initReveal();
+</script>
+</body>
+</html>
